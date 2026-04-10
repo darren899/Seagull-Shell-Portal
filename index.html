@@ -9,6 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/shell.css">
+    <style>
+        /* Hide hero logo stage on mobile — it pushes everything down awkwardly */
+        @media (max-width: 860px) {
+            .hero__visual { display: none !important; }
+            .hero__inner { grid-template-columns: 1fr !important; }
+        }
+    </style>
 </head>
 <body>
     <!-- Gate enforcement -->
