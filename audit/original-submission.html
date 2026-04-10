@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>02 · Original Submission · The Shell Audit · Seagull Maritime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/shell.css">
+    <style>
+        /* Chapter-02 specific styles */
+        .os-lede { max-width: 780px; margin: 0 auto 2.5rem; }
+        .os-lede p { color: var(--text-muted); font-size: 1.02rem; line-height: 1.72; margin: 0 0 1.1rem; }
+        .os-lede p em { color: #fff; font-style: normal; font-weight: 600; }
+
+        .os-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            max-width: 960px;
+            margin: 0 auto 3rem;
+        }
+        .os-stat {
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 1.25rem 1.15rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .os-stat::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: var(--shell-red);
+            opacity: 0.6;
+        }
+        .os-stat__num {
+            font-family: var(--font-display);
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
+        .os-stat__num--zero { color: var(--shell-yellow); }
+        .os-stat__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            line-height: 1.4;
+        }
+
+        .os-section {
+            max-width: 880px;
+            margin: 0 auto 1.5rem;
+            padding: 1.5rem 1.75rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+        }
+        .os-section__label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.4rem;
+        }
+        .os-section__title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 0.9rem;
+        }
+        .os-section__body { color: var(--text-muted); font-size: 0.94rem; line-height: 1.65; margin: 0 0 1rem; }
+        .os-section__body em { color: #fff; font-style: normal; font-weight: 600; }
+        .os-section__list {
+            list-style: none;
+            padding: 0;
+            margin: 0.75rem 0 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 0.4rem 1.25rem;
+        }
+        .os-section__list li {
+            color: var(--text-muted);
+            font-size: 0.87rem;
+            padding-left: 1rem;
+            position: relative;
+            line-height: 1.5;
+        }
+        .os-section__list li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: var(--shell-red);
+            font-weight: 700;
+        }
+
+        .os-absent {
+            max-width: 880px;
+            margin: 2.5rem auto;
+            padding: 1.75rem 2rem;
+            border: 1px solid rgba(221, 29, 33, 0.25);
+            background: linear-gradient(135deg, rgba(221, 29, 33, 0.05) 0%, rgba(10, 10, 10, 0.4) 100%);
+            border-radius: 10px;
+        }
+        .os-absent__label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--shell-red);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.4rem;
+        }
+        .os-absent__title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 0.9rem;
+        }
+        .os-absent__body { color: var(--text-muted); font-size: 0.94rem; line-height: 1.65; margin: 0 0 1rem; }
+        .os-absent__grid {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.5rem 1.25rem;
+        }
+        .os-absent__grid li {
+            color: rgba(255, 255, 255, 0.82);
+            font-size: 0.88rem;
+            padding-left: 1.25rem;
+            position: relative;
+            line-height: 1.5;
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+        .os-absent__grid li::before {
+            content: '✕';
+            position: absolute;
+            left: 0;
+            color: var(--shell-red);
+            font-weight: 700;
+        }
+
+        .os-pivot {
+            max-width: 880px;
+            margin: 3rem auto 0;
+            padding: 2rem 2rem;
+            border: 1px solid rgba(251, 206, 7, 0.22);
+            background: linear-gradient(135deg, rgba(251, 206, 7, 0.05) 0%, rgba(221, 29, 33, 0.04) 100%);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .os-pivot__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.7rem;
+        }
+        .os-pivot__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 1rem;
+            line-height: 1.3;
+        }
+        .os-pivot__body {
+            color: var(--text-muted);
+            font-size: 0.97rem;
+            line-height: 1.7;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Gate enforcement -->
+    <script src="../assets/js/gate.js"></script>
+    <script>window.ShellGate && window.ShellGate.enforce();</script>
+
+    <!-- Main header -->
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="../index.html" class="site-header__logo" aria-label="Seagull Maritime">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </a>
+            <div class="site-header__prepared-for">
+                <img src="../assets/img/shell-pecten.png" alt="Shell" class="shell-pecten-mini">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sticky sub-nav -->
+    <nav class="sub-nav" aria-label="Audit journey navigation">
+        <div class="sub-nav__inner">
+            <a href="index.html" class="sub-nav__back">Back to Audit</a>
+            <div class="sub-nav__dots">
+                <a href="timeline.html"            class="sub-nav__dot" data-label="01 · Timeline"></a>
+                <a href="original-submission.html" class="sub-nav__dot sub-nav__dot--current" data-label="02 · Submission"></a>
+                <a href="on-site.html"             class="sub-nav__dot" data-label="03 · On-Site"></a>
+                <a href="findings.html"            class="sub-nav__dot" data-label="04 · Findings"></a>
+                <a href="closure.html"             class="sub-nav__dot" data-label="05 · Closure"></a>
+                <a href="cwp.html"                 class="sub-nav__dot" data-label="06 · Programme"></a>
+                <a href="documents.html"           class="sub-nav__dot" data-label="07 · Documents"></a>
+            </div>
+            <a href="on-site.html" class="sub-nav__next">Next: On-Site →</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="../index.html">Portal</a>
+        <span class="breadcrumb__sep">›</span>
+        <a href="index.html">The Shell Audit</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">02 · Original Submission</span>
+    </div>
+
+    <!-- Sub-hero -->
+    <section class="sub-hero">
+        <div class="sub-hero__waves"></div>
+        <div class="container">
+            <div class="sub-hero__inner">
+                <div class="sub-hero__chapter">
+                    <span class="sub-hero__chapter-num">02</span>
+                    <span>Chapter Two</span>
+                </div>
+                <h1 class="sub-hero__title">Original Submission.</h1>
+                <p class="sub-hero__tagline">
+                    Where we were on 7 January 2026. A portrait, in good faith, of the management
+                    system Shell's auditors were handed on day one — the honest starting line for
+                    everything that has followed.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lede -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="os-lede">
+                <p>
+                    The PMSC Vetting Questionnaire landed on <em>16 December 2025</em> with a <em>7 January</em>
+                    deadline. Three working weeks, spanning Christmas and New Year. The pack that came
+                    out the other side of that window was <em>205 files across three sections</em> —
+                    Company &amp; Management System, Operations, and West Africa — and it represented
+                    Seagull Maritime exactly as it stood on that date. No more, no less.
+                </p>
+                <p>
+                    Everyone who could contribute, did. The structure, the sections, the evidence pool —
+                    pulled together across the holiday period against a fixed deadline, in parallel with
+                    client taskings that didn't pause. The pack went in on time and reflected the
+                    management system honestly as it stood on 7 January.
+                </p>
+                <p>
+                    What follows is a factual account of what that pack contained. It isn't a confession
+                    and it isn't dressed up. It's the baseline — and the reason every chapter that comes
+                    after this one has something to measure against.
+                </p>
+            </div>
+
+            <!-- Stat grid -->
+            <div class="os-stats">
+                <div class="os-stat">
+                    <div class="os-stat__num">205</div>
+                    <div class="os-stat__label">Files submitted<br>across three sections</div>
+                </div>
+                <div class="os-stat">
+                    <div class="os-stat__num">3 wks</div>
+                    <div class="os-stat__label">Build window<br>across Christmas</div>
+                </div>
+                <div class="os-stat">
+                    <div class="os-stat__num">1</div>
+                    <div class="os-stat__label">Person building<br>the whole pack</div>
+                </div>
+                <div class="os-stat">
+                    <div class="os-stat__num">7</div>
+                    <div class="os-stat__label">Policies<br>in the library</div>
+                </div>
+                <div class="os-stat">
+                    <div class="os-stat__num">5</div>
+                    <div class="os-stat__label">Management-system<br>procedures</div>
+                </div>
+                <div class="os-stat">
+                    <div class="os-stat__num">4</div>
+                    <div class="os-stat__label">Operational<br>SOPs</div>
+                </div>
+                <div class="os-stat">
+                    <div class="os-stat__num">1</div>
+                    <div class="os-stat__label">Rules on the<br>Use of Force doc</div>
+                </div>
+                <div class="os-stat">
+                    <div class="os-stat__num os-stat__num--zero">0</div>
+                    <div class="os-stat__label">Risk assessments<br>in the pack</div>
+                </div>
+            </div>
+
+            <!-- Section A -->
+            <div class="os-section">
+                <div class="os-section__label">Section A · The largest folder</div>
+                <h2 class="os-section__title">Company &amp; Management System</h2>
+                <p class="os-section__body">
+                    The company shop window. Structure, ownership, UBO, legal statements, incorporation
+                    docs, ISO certificates (<em>18788, 28000, 28007, 9001</em>), insurance, and the
+                    management-system evidence Shell would use to form a first impression. Ten numbered
+                    sub-folders, each exactly as complete as the underlying system allowed.
+                </p>
+                <ul class="os-section__list">
+                    <li>Company structure, UBO, governance and legal statements</li>
+                    <li>5 procedures (Management Review, NC&amp;CA, Supplier Approval ×2, Subcontractor)</li>
+                    <li>7 policies — Code of Conduct, Human Rights, Anti-Bribery, Grievance, Equal Opps, Data Protection, ABC</li>
+                    <li>4 ISO certificates — no 45001</li>
+                    <li>H&amp;S evidence: one statistics sheet, one policy manual</li>
+                    <li>Recruitment &amp; training — MSO syllabus, one monitoring screenshot, one master evaluation</li>
+                    <li>Emergency response — Business Continuity and Incident &amp; Crisis plans (SMS-PRO branded)</li>
+                </ul>
+            </div>
+
+            <!-- Section B -->
+            <div class="os-section">
+                <div class="os-section__label">Section B · Operations</div>
+                <h2 class="os-section__title">How we actually run taskings</h2>
+                <p class="os-section__body">
+                    The operational heart of the pack — SOPs, RUF, weapons management, employment
+                    screening, flag &amp; port state approvals, VBAs. The intent was to show Shell what
+                    a Seagull deployment looked like from embarkation to disembarkation.
+                </p>
+                <ul class="os-section__list">
+                    <li>4 SOPs total — SOP-3001 Embarked Teams, SOP-3002 LNG/LPG, SOP-7778 Stowaway, M-3001 Manual</li>
+                    <li>A single Rules on the Use of Force PDF — no form annexes</li>
+                    <li>SOP-3003 Weapons &amp; Security Equipment plus two ERP screenshots</li>
+                    <li>3 example VBAs (Golden Palm, Grey Palm, Kapitan Konig)</li>
+                    <li>Flag &amp; Port State approvals — duplicated from Section A because there weren't enough files to fill two folders</li>
+                    <li>One Post Transit Report form — the whole "operational forms" pool</li>
+                    <li>Weapons end-user certs (Djibouti) and UK export licences</li>
+                </ul>
+            </div>
+
+            <!-- Section C -->
+            <div class="os-section">
+                <div class="os-section__label">Section C · West Africa</div>
+                <h2 class="os-section__title">Nigeria, Mediator II, and the SR Platforms relationship</h2>
+                <p class="os-section__body">
+                    Section C was the WAF chapter of the pack — the Host Nation Force MOU,
+                    <em>MV Mediator II</em> as the worked example, vessel hardening, crew training,
+                    SEV inspection checklists, and SR Platforms' operating documents. It was the
+                    section that would later drive most of the Day 2 audit conversation.
+                </p>
+                <ul class="os-section__list">
+                    <li>Seagull – Nigerian Navy MOU (July 2025)</li>
+                    <li>MV Mediator II — 15 vessel documents, specs, surveys, certificates</li>
+                    <li>SR Platforms SMM, NPA licence, NSCDC permit, NIWA permit</li>
+                    <li>SEV inspection checklists (April 2025, Mediator II) — example and action items</li>
+                    <li>Vessel hardening — ballistics certificate for Mediator II</li>
+                    <li>Crew training matrix, drill matrix, HSE KPI and monthly HSSE reports</li>
+                    <li>Nigerian corporate docs — CAC, NIMASA RSO, TCC, Oil &amp; Gas permit, MEMART</li>
+                </ul>
+            </div>
+
+            <!-- Absent -->
+            <aside class="os-absent">
+                <div class="os-absent__label">What wasn't in the pack</div>
+                <h2 class="os-absent__title">The honest list of absences</h2>
+                <p class="os-absent__body">
+                    Not because anyone tried to hide anything — because on 7 January, these things
+                    either didn't exist or existed only as intent. Every one of them is in the system
+                    today. Chapters 03 to 07 of this portal are the story of how they got there.
+                </p>
+                <ul class="os-absent__grid">
+                    <li>No ISO 45001 integration</li>
+                    <li>No risk assessment framework</li>
+                    <li>No BRAGs or frontline guides</li>
+                    <li>No NCR / OFI / CAPA register</li>
+                    <li>No document register</li>
+                    <li>No reconciliation matrix</li>
+                    <li>No Change Management Plans</li>
+                    <li>No Management of Change suite</li>
+                    <li>No supplier DD ecosystem</li>
+                    <li>No training platform</li>
+                    <li>No HSE reporting app</li>
+                    <li>No Risk Screening Tool</li>
+                    <li>No Company Objectives Register</li>
+                    <li>No Interested Parties Register</li>
+                    <li>No Legal &amp; Regulatory Register</li>
+                    <li>No Flag State Register</li>
+                    <li>No External Standards Register</li>
+                    <li>No Training &amp; Competence Matrix</li>
+                    <li>No IRT exercise evidence</li>
+                    <li>No campaign framework</li>
+                </ul>
+            </aside>
+
+            <!-- Pivot -->
+            <div class="os-pivot">
+                <div class="os-pivot__label">The Pivot</div>
+                <h2 class="os-pivot__title">This was the baseline.<br>Everything that follows is measured against it.</h2>
+                <p class="os-pivot__body">
+                    7 policies became 17. 5 procedures became 20-plus. 4 SOPs became a proper IOR
+                    operational pack with RUF, annexes and twelve forms. Zero risk assessments became
+                    nine with 144 hazards and nine plain-language guides. The gaps the audit found
+                    weren't minor — and that's exactly why the response had to be the whole system,
+                    not a patch job. Chapter 03 is where Shell's team walked into the room and saw
+                    this pack for themselves.
+                </p>
+            </div>
+
+            <!-- Chapter nav footer -->
+            <nav class="chapter-nav" aria-label="Chapter navigation">
+                <a href="timeline.html" class="chapter-nav__link chapter-nav__link--prev">
+                    <div style="font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">← Chapter 01</div>
+                    <div style="font-family: var(--font-display); font-weight: 700; color: #fff;">Timeline</div>
+                </a>
+                <a href="on-site.html" class="chapter-nav__link chapter-nav__link--next">
+                    <div style="font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Chapter 03 →</div>
+                    <div style="font-family: var(--font-display); font-weight: 700; color: #fff;">On-Site</div>
+                </a>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__mark">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </div>
+            <div class="site-footer__tag">
+                Your Watch.
+                <strong>Our Standard.</strong>
+            </div>
+            <div class="site-footer__meta">
+                Confidential · Prepared for Shell Maritime Security Team · 2026
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

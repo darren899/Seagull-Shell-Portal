@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>04 · Findings · The Shell Audit · Seagull Maritime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/shell.css">
+    <style>
+        /* Chapter-04 styles */
+        .fn-lede { max-width: 780px; margin: 0 auto 2.5rem; }
+        .fn-lede p { color: var(--text-muted); font-size: 1.02rem; line-height: 1.72; margin: 0 0 1.1rem; }
+        .fn-lede p em { color: #fff; font-style: normal; font-weight: 600; }
+
+        /* Summary pills */
+        .fn-summary {
+            max-width: 880px;
+            margin: 0 auto 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .fn-summary__pill {
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 1.4rem 1.3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .fn-summary__pill::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+        }
+        .fn-summary__pill--findings::before { background: var(--shell-red); }
+        .fn-summary__pill--ofi::before { background: var(--shell-yellow); }
+        .fn-summary__pill--status::before { background: linear-gradient(180deg, var(--shell-red), var(--shell-yellow)); }
+        .fn-summary__num {
+            font-family: var(--font-display);
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+        .fn-summary__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.4;
+        }
+
+        /* Section heading */
+        .fn-sec-heading {
+            max-width: 880px;
+            margin: 2rem auto 1.25rem;
+        }
+        .fn-sec-heading__eyebrow {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.4rem;
+        }
+        .fn-sec-heading__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 2.4vw, 1.75rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.5rem;
+        }
+        .fn-sec-heading__lead {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            max-width: 680px;
+            margin: 0;
+        }
+
+        /* Finding card */
+        .finding {
+            max-width: 880px;
+            margin: 0 auto 1.25rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .finding__ribbon {
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--shell-red);
+        }
+        .finding__header {
+            padding: 1.5rem 1.75rem 0.75rem 2rem;
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .finding__num {
+            font-family: var(--font-display);
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--shell-red);
+            line-height: 0.9;
+            flex-shrink: 0;
+            min-width: 3.5rem;
+        }
+        .finding__head-text { flex: 1; min-width: 200px; }
+        .finding__ref {
+            font-family: var(--font-display);
+            font-size: 0.66rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 0.3rem;
+        }
+        .finding__title {
+            font-family: var(--font-display);
+            font-size: 1.22rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.15rem;
+            line-height: 1.25;
+        }
+        .finding__status {
+            display: inline-block;
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.7rem;
+            border-radius: 4px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-top: 0.3rem;
+            align-self: flex-start;
+        }
+        .finding__status--closed {
+            background: rgba(251, 206, 7, 0.15);
+            color: var(--shell-yellow);
+            border: 1px solid rgba(251, 206, 7, 0.4);
+        }
+        .finding__status--external {
+            background: rgba(221, 29, 33, 0.12);
+            color: var(--shell-red);
+            border: 1px solid rgba(221, 29, 33, 0.35);
+        }
+        .finding__body {
+            padding: 0.5rem 2rem 1.5rem 2rem;
+        }
+        .finding__block {
+            margin: 1rem 0 0;
+            padding-top: 1rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        .finding__block:first-child { border-top: none; padding-top: 0.25rem; }
+        .finding__block-label {
+            font-family: var(--font-display);
+            font-size: 0.66rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 0.4rem;
+        }
+        .finding__block-body {
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.9rem;
+            line-height: 1.65;
+            margin: 0;
+        }
+        .finding__block-body--muted { color: var(--text-muted); }
+
+        /* OFI grid - lighter treatment */
+        .ofi-grid {
+            max-width: 960px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .ofi {
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 1.4rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .ofi::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: var(--shell-yellow);
+            opacity: 0.65;
+        }
+        .ofi__header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .ofi__num {
+            font-family: var(--font-display);
+            font-size: 0.66rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+        .ofi__status {
+            font-family: var(--font-display);
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.2rem 0.55rem;
+            border-radius: 3px;
+            background: rgba(251, 206, 7, 0.12);
+            border: 1px solid rgba(251, 206, 7, 0.3);
+        }
+        .ofi__title {
+            font-family: var(--font-display);
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 0.6rem;
+            line-height: 1.35;
+        }
+        .ofi__body {
+            color: var(--text-muted);
+            font-size: 0.83rem;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        /* Closing block */
+        .fn-close {
+            max-width: 880px;
+            margin: 3rem auto 0;
+            padding: 2rem 2.25rem;
+            border: 1px solid rgba(251, 206, 7, 0.22);
+            background: linear-gradient(135deg, rgba(251, 206, 7, 0.05) 0%, rgba(221, 29, 33, 0.04) 100%);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .fn-close__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.7rem;
+        }
+        .fn-close__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 1rem;
+            line-height: 1.3;
+        }
+        .fn-close__body {
+            color: var(--text-muted);
+            font-size: 0.97rem;
+            line-height: 1.7;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Gate enforcement -->
+    <script src="../assets/js/gate.js"></script>
+    <script>window.ShellGate && window.ShellGate.enforce();</script>
+
+    <!-- Main header -->
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="../index.html" class="site-header__logo" aria-label="Seagull Maritime">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </a>
+            <div class="site-header__prepared-for">
+                <img src="../assets/img/shell-pecten.png" alt="Shell" class="shell-pecten-mini">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sticky sub-nav -->
+    <nav class="sub-nav" aria-label="Audit journey navigation">
+        <div class="sub-nav__inner">
+            <a href="index.html" class="sub-nav__back">Back to Audit</a>
+            <div class="sub-nav__dots">
+                <a href="timeline.html"            class="sub-nav__dot" data-label="01 · Timeline"></a>
+                <a href="original-submission.html" class="sub-nav__dot" data-label="02 · Submission"></a>
+                <a href="on-site.html"             class="sub-nav__dot" data-label="03 · On-Site"></a>
+                <a href="findings.html"            class="sub-nav__dot sub-nav__dot--current" data-label="04 · Findings"></a>
+                <a href="closure.html"             class="sub-nav__dot" data-label="05 · Closure"></a>
+                <a href="cwp.html"                 class="sub-nav__dot" data-label="06 · Programme"></a>
+                <a href="documents.html"           class="sub-nav__dot" data-label="07 · Documents"></a>
+            </div>
+            <a href="closure.html" class="sub-nav__next">Next: Closure →</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="../index.html">Portal</a>
+        <span class="breadcrumb__sep">›</span>
+        <a href="index.html">The Shell Audit</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">04 · Findings</span>
+    </div>
+
+    <!-- Sub-hero -->
+    <section class="sub-hero">
+        <div class="sub-hero__waves"></div>
+        <div class="container">
+            <div class="sub-hero__inner">
+                <div class="sub-hero__chapter">
+                    <span class="sub-hero__chapter-num">04</span>
+                    <span>Chapter Four</span>
+                </div>
+                <h1 class="sub-hero__title">Findings.</h1>
+                <p class="sub-hero__tagline">
+                    Seven findings. Eight opportunities for improvement. All captured in Shell's
+                    own words, in the order they were written. This is the audit report, faithfully
+                    reproduced — because the first thing the close-out visit should see is that
+                    nothing has been softened.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lede -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="fn-lede">
+                <p>
+                    The Draft Audit Report landed on <em>5 February 2026</em>, two weeks after the
+                    on-site visit. Seven findings, eight opportunities for improvement, and a clear
+                    set of recommendations behind each one. Fair in scope, specific in language, and
+                    — on reflection — a generous roadmap from an audit team that wanted the
+                    relationship to succeed.
+                </p>
+                <p>
+                    This chapter does one thing: it reproduces the findings and OFIs exactly as
+                    Shell wrote them. Each entry retains the original finding description, the
+                    original recommendation, and a current status indicator drawn from the NCR /
+                    OFI / CAPA register. The <em>evidence</em> — documents produced, procedures
+                    written, systems built — lives in Chapter 05, where the close-out story is told
+                    in full.
+                </p>
+            </div>
+
+            <!-- Summary pills -->
+            <div class="fn-summary">
+                <div class="fn-summary__pill fn-summary__pill--findings">
+                    <div class="fn-summary__num">7</div>
+                    <div class="fn-summary__label">Findings raised<br>in the audit report</div>
+                </div>
+                <div class="fn-summary__pill fn-summary__pill--ofi">
+                    <div class="fn-summary__num">8</div>
+                    <div class="fn-summary__label">Opportunities<br>for Improvement</div>
+                </div>
+                <div class="fn-summary__pill fn-summary__pill--status">
+                    <div class="fn-summary__num">14 / 15</div>
+                    <div class="fn-summary__label">Closed with evidence<br>as at 10 April 2026</div>
+                </div>
+            </div>
+
+            <!-- FINDINGS SECTION -->
+            <div class="fn-sec-heading">
+                <div class="fn-sec-heading__eyebrow">Section One</div>
+                <h2 class="fn-sec-heading__title">The Seven Findings</h2>
+                <p class="fn-sec-heading__lead">
+                    Shell's language, Shell's sequence. Status indicators reflect the position on
+                    the NCR register as at 10 April 2026.
+                </p>
+            </div>
+
+            <!-- Finding 1 -->
+            <div class="finding">
+                <div class="finding__ribbon"></div>
+                <div class="finding__header">
+                    <div class="finding__num">01</div>
+                    <div class="finding__head-text">
+                        <div class="finding__ref">Finding · F1 · NCR-001</div>
+                        <h3 class="finding__title">License to Operate — Exemption from Maltese Law</h3>
+                        <span class="finding__status finding__status--external">External · Awaiting Malta response</span>
+                    </div>
+                </div>
+                <div class="finding__body">
+                    <div class="finding__block">
+                        <div class="finding__block-label">Finding description</div>
+                        <p class="finding__block-body">
+                            Seagull Maritime is required to provide formal documentary evidence confirming
+                            its claimed exemption from Maltese law to demonstrate compliance with or
+                            exemption from S.L. 480.05 and Arms Act under Maltese law; however, no such
+                            documentation from the Maltese government was available during the audit,
+                            leaving the company's legal standing and jurisdictional obligations insufficiently
+                            verified. This gap indicates a compliance risk, as operational authorisation and
+                            governance expectations cannot be fully assessed without proof of exemption.
+                        </p>
+                    </div>
+                    <div class="finding__block">
+                        <div class="finding__block-label">Shell recommendation</div>
+                        <p class="finding__block-body finding__block-body--muted">
+                            Seagull Maritime should formally obtain and maintain written confirmation from
+                            a competent Maltese government body or relevant regulatory authority that clearly
+                            specifies the company's exemption status from S.L. 480.05 and Arms Act under
+                            Maltese law. This documentation should be filed within the corporate governance
+                            records, referenced in compliance documentation, and communicated to
+                            stakeholders to ensure regulatory certainty.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finding 2 -->
+            <div class="finding">
+                <div class="finding__ribbon"></div>
+                <div class="finding__header">
+                    <div class="finding__num">02</div>
+                    <div class="finding__head-text">
+                        <div class="finding__ref">Finding · F2 · NCR-002</div>
+                        <h3 class="finding__title">Risk Management System</h3>
+                        <span class="finding__status finding__status--closed">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="finding__body">
+                    <div class="finding__block">
+                        <div class="finding__block-label">Finding description</div>
+                        <p class="finding__block-body">
+                            Seagull Maritime is required to maintain a structured risk management framework
+                            that consistently addresses risk identification, assessment, control measures,
+                            and mitigation strategies across all operational theatres, including West Africa
+                            (WAF) and the Indian Ocean Region (IOR); however, current processes remain
+                            informal, inconsistently applied, and lack the documented methodology necessary
+                            for a robust and repeatable approach to operational high risk such as personal
+                            transfer. Seagull Maritime seeks to adopt ISO 45001:2018 for managing occupational
+                            health and safety risks which provides a recognised management system.
+                        </p>
+                    </div>
+                    <div class="finding__block">
+                        <div class="finding__block-label">Shell recommendation</div>
+                        <p class="finding__block-body finding__block-body--muted">
+                            Develop and implement a unified, organisation-wide risk management framework
+                            that includes structured processes for risk identification, assessment, control
+                            implementation, and mitigation tracking such as ISO 45001. The framework should
+                            cover all operational environments (WAF and IOR), integrate HSSE considerations,
+                            and be documented within SOPs. Regular reviews and risk register updates should
+                            be embedded into operational governance cycles.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finding 3 -->
+            <div class="finding">
+                <div class="finding__ribbon"></div>
+                <div class="finding__header">
+                    <div class="finding__num">03</div>
+                    <div class="finding__head-text">
+                        <div class="finding__ref">Finding · F3 · NCR-003</div>
+                        <h3 class="finding__title">Establishment of a Media &amp; Social Media Policy</h3>
+                        <span class="finding__status finding__status--closed">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="finding__body">
+                    <div class="finding__block">
+                        <div class="finding__block-label">Finding description</div>
+                        <p class="finding__block-body">
+                            The organisation is required to maintain a formalised media and social media
+                            policy to govern communications, conduct expectations, and reputational
+                            safeguards for both office-based and operational employees; however, the audit
+                            confirmed that no such policy exists, leaving staff without clear guidance on
+                            media engagement, online behaviour, or incident-related communication protocols.
+                            The absence of structured communication controls increases exposure to
+                            reputational, security, and confidentiality risks.
+                        </p>
+                    </div>
+                    <div class="finding__block">
+                        <div class="finding__block-label">Shell recommendation</div>
+                        <p class="finding__block-body finding__block-body--muted">
+                            Draft and approve a formal media and social media policy that outlines
+                            expectations, behavioural standards, confidentiality rules, escalation pathways,
+                            and approval processes for both office and operational staff. The policy should
+                            be communicated company-wide, incorporated into onboarding, and reinforced
+                            through periodic training.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finding 4 -->
+            <div class="finding">
+                <div class="finding__ribbon"></div>
+                <div class="finding__header">
+                    <div class="finding__num">04</div>
+                    <div class="finding__head-text">
+                        <div class="finding__ref">Finding · F4 · NCR-004</div>
+                        <h3 class="finding__title">Accuracy of Personal Insurance Documentation</h3>
+                        <span class="finding__status finding__status--closed">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="finding__body">
+                    <div class="finding__block">
+                        <div class="finding__block-label">Finding description</div>
+                        <p class="finding__block-body">
+                            Seagull Maritime must ensure its personal insurance documentation accurately
+                            reflects the correct legal entity responsible for employee coverage; however,
+                            evidence indicates the insurance provider is listed under "Seagull UK," while
+                            the audited operating entity is registered in Malta, creating ambiguity about
+                            the validity and applicability of employee insurance protections. This
+                            discrepancy may result in coverage gaps or misalignment with legal obligations
+                            under the correct jurisdiction.
+                        </p>
+                    </div>
+                    <div class="finding__block">
+                        <div class="finding__block-label">Shell recommendation</div>
+                        <p class="finding__block-body finding__block-body--muted">
+                            Review all personal insurance documentation to confirm the correct legal entity
+                            responsible for employee coverage. Update all policy documentation, contracts,
+                            and internal records to reflect the accurate entity (Malta or UK). Communicate
+                            amendments to employees and ensure alignment with jurisdictional legal
+                            requirements.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finding 5 -->
+            <div class="finding">
+                <div class="finding__ribbon"></div>
+                <div class="finding__header">
+                    <div class="finding__num">05</div>
+                    <div class="finding__head-text">
+                        <div class="finding__ref">Finding · F5 · NCR-005</div>
+                        <h3 class="finding__title">Nigerian Navy Memorandum of Understanding</h3>
+                        <span class="finding__status finding__status--closed">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="finding__body">
+                    <div class="finding__block">
+                        <div class="finding__block-label">Finding description</div>
+                        <p class="finding__block-body">
+                            For legitimised armed operations within Nigerian territorial waters, Seagull
+                            Maritime is required to maintain a current Memorandum of Understanding (MOU)
+                            with the Nigerian Navy; however, the audit found that the organisation does not
+                            yet possess a formalised or validated MOU, a Shell requirement for PMSC to
+                            provide security escort vessels.
+                        </p>
+                    </div>
+                    <div class="finding__block">
+                        <div class="finding__block-label">Shell recommendation</div>
+                        <p class="finding__block-body finding__block-body--muted">
+                            Engage directly with the Nigerian Navy to finalise and obtain an officially
+                            endorsed Memorandum of Understanding (MOU) authorising maritime security
+                            operations in Nigerian waters. Once formalised, incorporate the MOU into
+                            compliance documentation and ensure operational teams are trained on any
+                            associated constraints or requirements.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finding 6 -->
+            <div class="finding">
+                <div class="finding__ribbon"></div>
+                <div class="finding__header">
+                    <div class="finding__num">06</div>
+                    <div class="finding__head-text">
+                        <div class="finding__ref">Finding · F6 · NCR-006</div>
+                        <h3 class="finding__title">Adoption of Voluntary Principles on Security and Human Rights (VPSHR)</h3>
+                        <span class="finding__status finding__status--closed">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="finding__body">
+                    <div class="finding__block">
+                        <div class="finding__block-label">Finding description</div>
+                        <p class="finding__block-body">
+                            Seagull Maritime is required to align its security practices with internationally
+                            recognised human rights standards — including the Voluntary Principles on
+                            Security and Human Rights (VPSHR) — to ensure responsible conduct, proportional
+                            use of force, and protection of personnel and third parties; however, while the
+                            company demonstrates general awareness of human rights considerations, its
+                            procedures, SOPs, and training materials do not reference or integrate VPSHR
+                            guidance. This omission limits consistency and assurance in human-rights-aligned
+                            operational behaviour.
+                        </p>
+                    </div>
+                    <div class="finding__block">
+                        <div class="finding__block-label">Shell recommendation</div>
+                        <p class="finding__block-body finding__block-body--muted">
+                            Update operational procedures, training material, and use of force guidelines
+                            to explicitly incorporate the Voluntary Principles on Security and Human Rights
+                            (VPSHR). Conduct awareness sessions with office and deployed personnel and
+                            embed VPSHR requirements into contractor agreements and monitoring processes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finding 7 -->
+            <div class="finding">
+                <div class="finding__ribbon"></div>
+                <div class="finding__header">
+                    <div class="finding__num">07</div>
+                    <div class="finding__head-text">
+                        <div class="finding__ref">Finding · F7 · NCR-007</div>
+                        <h3 class="finding__title">Completion and Documentation of an IRT Exercise</h3>
+                        <span class="finding__status finding__status--closed">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="finding__body">
+                    <div class="finding__block">
+                        <div class="finding__block-label">Finding description</div>
+                        <p class="finding__block-body">
+                            The organisation is required to regularly conduct and document Incident Response
+                            Team (IRT) exercises to validate emergency preparedness, coordination
+                            effectiveness, and crisis management readiness; however, no records of completed
+                            IRT drills or formalised after-action reviews were available during the audit.
+                            This requirement is especially important because the office staff work in a
+                            region affected by conflict (Odessa, Ukraine). The absence of evidence indicates
+                            that the organisation has not yet tested its incident response framework under
+                            realistic conditions.
+                        </p>
+                    </div>
+                    <div class="finding__block">
+                        <div class="finding__block-label">Shell recommendation</div>
+                        <p class="finding__block-body finding__block-body--muted">
+                            Conduct a full Incident Response Team (IRT) exercise simulating a realistic
+                            operational scenario, ensuring participation from all relevant functions.
+                            Document the exercise, including objectives, scenario, performance evaluation,
+                            lessons learned, and corrective actions. Integrate improvements into the
+                            company's Incident Response Plan and repeat exercises regularly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OFIs SECTION -->
+            <div class="fn-sec-heading">
+                <div class="fn-sec-heading__eyebrow">Section Two</div>
+                <h2 class="fn-sec-heading__title">Eight Opportunities for Improvement</h2>
+                <p class="fn-sec-heading__lead">
+                    Not blockers — considered improvements offered by the audit team. Each one was
+                    adopted and closed with supporting evidence. Shell's language retained throughout.
+                </p>
+            </div>
+
+            <div class="ofi-grid">
+                <div class="ofi">
+                    <div class="ofi__header">
+                        <div class="ofi__num">OFI 01</div>
+                        <div class="ofi__status">Closed</div>
+                    </div>
+                    <h4 class="ofi__title">Formal Management of Change (MoC) process</h4>
+                    <p class="ofi__body">
+                        The company would benefit from documenting and implementing a formal Management
+                        of Change process to ensure that updates to procedures are systematically
+                        reviewed, approved, and communicated.
+                    </p>
+                </div>
+
+                <div class="ofi">
+                    <div class="ofi__header">
+                        <div class="ofi__num">OFI 02</div>
+                        <div class="ofi__status">Closed</div>
+                    </div>
+                    <h4 class="ofi__title">Structured annual Management Review cycle</h4>
+                    <p class="ofi__body">
+                        Establishing a structured annual management review cycle would support
+                        leadership accountability, promote follow-up on key actions, and reinforce
+                        continual improvement.
+                    </p>
+                </div>
+
+                <div class="ofi">
+                    <div class="ofi__header">
+                        <div class="ofi__num">OFI 03</div>
+                        <div class="ofi__status">Closed</div>
+                    </div>
+                    <h4 class="ofi__title">Sanctions listings in compliance workflows</h4>
+                    <p class="ofi__body">
+                        Routine checks of sanctions listings should be embedded into compliance
+                        workflows to ensure ongoing adherence to regulatory requirements.
+                    </p>
+                </div>
+
+                <div class="ofi">
+                    <div class="ofi__header">
+                        <div class="ofi__num">OFI 04</div>
+                        <div class="ofi__status">Closed</div>
+                    </div>
+                    <h4 class="ofi__title">Vessel delay wording — safety reasons</h4>
+                    <p class="ofi__body">
+                        The wording related to delaying vessels should be revised to clearly reflect
+                        that client vessels may be delayed for legitimate safety reasons, including
+                        adverse weather during transfers.
+                    </p>
+                </div>
+
+                <div class="ofi">
+                    <div class="ofi__header">
+                        <div class="ofi__num">OFI 05</div>
+                        <div class="ofi__status">Closed</div>
+                    </div>
+                    <h4 class="ofi__title">UKMTO as primary vessel defence contact</h4>
+                    <p class="ofi__body">
+                        The vessel defence section should be updated to ensure the primary incident
+                        reporting pathway is aligned with industry expectations, specifically
+                        designating UKMTO as the initial point of contact.
+                    </p>
+                </div>
+
+                <div class="ofi">
+                    <div class="ofi__header">
+                        <div class="ofi__num">OFI 06</div>
+                        <div class="ofi__status">Closed</div>
+                    </div>
+                    <h4 class="ofi__title">Minimum standards for Security Escort Vessels</h4>
+                    <p class="ofi__body">
+                        Seagull Maritime should also define and communicate minimum standards for
+                        Security Escort Vessels (SEVs).
+                    </p>
+                </div>
+
+                <div class="ofi">
+                    <div class="ofi__header">
+                        <div class="ofi__num">OFI 07</div>
+                        <div class="ofi__status">Closed</div>
+                    </div>
+                    <h4 class="ofi__title">Drugs &amp; Alcohol policy applicability</h4>
+                    <p class="ofi__body">
+                        Clarify the applicability of the Drugs &amp; Alcohol (D&amp;A) policy across
+                        all personnel types.
+                    </p>
+                </div>
+
+                <div class="ofi">
+                    <div class="ofi__header">
+                        <div class="ofi__num">OFI 08</div>
+                        <div class="ofi__status">Closed</div>
+                    </div>
+                    <h4 class="ofi__title">Formal PCASP security briefing to Master</h4>
+                    <p class="ofi__body">
+                        Implement a formal PCASP security briefing to Masters to enhance operational
+                        transparency and coordination.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Closing block -->
+            <div class="fn-close">
+                <div class="fn-close__label">The Verdict from Here</div>
+                <h2 class="fn-close__title">Fourteen of fifteen closed.<br>The fifteenth sits outside our control.</h2>
+                <p class="fn-close__body">
+                    Every finding and every OFI has been worked, evidenced, and cross-referenced in
+                    the NCR / OFI / CAPA register. The one exception — Finding 1, the Malta
+                    exemption letter — is a government process held up on the Maltese side.
+                    Escalation is in hand and the intent is to have it closed out and filed with
+                    the rest of the evidence before the 3 May close-out. Chapter 05 shows, finding
+                    by finding, exactly how each one was closed and where the evidence lives.
+                </p>
+            </div>
+
+            <!-- Chapter nav footer -->
+            <nav class="chapter-nav" aria-label="Chapter navigation">
+                <a href="on-site.html" class="chapter-nav__link chapter-nav__link--prev">
+                    <div style="font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">← Chapter 03</div>
+                    <div style="font-family: var(--font-display); font-weight: 700; color: #fff;">On-Site</div>
+                </a>
+                <a href="closure.html" class="chapter-nav__link chapter-nav__link--next">
+                    <div style="font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Chapter 05 →</div>
+                    <div style="font-family: var(--font-display); font-weight: 700; color: #fff;">Closure</div>
+                </a>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__mark">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </div>
+            <div class="site-footer__tag">
+                Your Watch.
+                <strong>Our Standard.</strong>
+            </div>
+            <div class="site-footer__meta">
+                Confidential · Prepared for Shell Maritime Security Team · 2026
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

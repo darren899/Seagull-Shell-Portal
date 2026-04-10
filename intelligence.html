@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Intelligence &amp; Service Offerings · Seagull Maritime × Shell MS Team</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/shell.css">
+    <style>
+        /* ---------- Subgrid alignment (mirrors platform.html) ----------
+           Each card's children drop into the parent .cards grid rows so
+           every row (title, meta, body, bullets, access, cta) aligns
+           across columns regardless of content length. */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            grid-template-rows: auto auto auto auto auto auto auto;
+            align-items: stretch;
+        }
+        .cards .card {
+            display: grid;
+            grid-template-rows: subgrid;
+            grid-row: span 7;
+            min-height: 0;
+        }
+        .cards .card > .card__body { flex: 0 0 auto; }
+
+        /* ---------- Tag strip (shared with platform.html pattern) ---------- */
+        .tool-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin: 0.9rem 0 0.75rem;
+            align-content: flex-start;
+        }
+        .tool-tag {
+            display: inline-block;
+            font-family: var(--font-display);
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.32rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(251, 206, 7, 0.12);
+            color: var(--shell-yellow);
+            border: 1px solid rgba(251, 206, 7, 0.28);
+        }
+        .tool-tag--red {
+            background: rgba(221, 29, 33, 0.12);
+            color: #ff5a5e;
+            border-color: rgba(221, 29, 33, 0.32);
+        }
+        .tool-tag--draft {
+            background: rgba(140, 140, 140, 0.1);
+            color: #c4c4c4;
+            border-color: rgba(180, 180, 180, 0.3);
+        }
+
+        /* ---------- "What's in here" bullet list ---------- */
+        .tool-seelist {
+            margin: 0.9rem 0 0;
+            padding: 0.9rem 0 0;
+            border-top: 1px solid var(--surface-border);
+            list-style: none;
+        }
+        .tool-seelist li {
+            position: relative;
+            padding-left: 1.1rem;
+            margin-bottom: 0.45rem;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: var(--text-muted, #c4c4c4);
+        }
+        .tool-seelist li:last-child { margin-bottom: 0; }
+        .tool-seelist li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--shell-yellow);
+            font-weight: 700;
+        }
+        .tool-seelist-label {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--shell-red);
+            margin-bottom: 0.5rem;
+        }
+
+        /* ---------- Status strip ---------- */
+        .tool-access {
+            margin-top: auto;
+            padding-top: 0.9rem;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.78rem;
+            color: var(--text-muted, #a9a9a9);
+            line-height: 1.5;
+        }
+        .tool-access strong {
+            color: #e6e6e6;
+            font-weight: 600;
+        }
+
+        /* ---------- Draft-state visuals ---------- */
+        .card--draft {
+            border-style: dashed;
+            border-color: rgba(180, 180, 180, 0.28);
+        }
+        .card--draft .card__cta { color: var(--text-muted, #a9a9a9); }
+
+        .draft-banner {
+            max-width: 900px;
+            margin: 0 auto 2rem;
+            padding: 1rem 1.5rem;
+            background: rgba(251, 206, 7, 0.06);
+            border: 1px solid rgba(251, 206, 7, 0.32);
+            border-left: 3px solid var(--shell-yellow);
+            border-radius: 6px;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            color: #d8d8d8;
+        }
+        .draft-banner strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--shell-yellow);
+            margin-bottom: 0.45rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Gate enforcement -->
+    <script src="assets/js/gate.js"></script>
+    <script>window.ShellGate && window.ShellGate.enforce();</script>
+
+    <!-- Main header -->
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="index.html" class="site-header__logo" aria-label="Seagull Maritime">
+                <img src="assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </a>
+            <div class="site-header__prepared-for">
+                <img src="assets/img/shell-pecten.png" alt="Shell" class="shell-pecten-mini">
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="index.html">Portal</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">Intelligence &amp; Service Offerings</span>
+    </div>
+
+    <!-- Sub-hero -->
+    <section class="sub-hero">
+        <div class="sub-hero__waves"></div>
+        <div class="container">
+            <div class="sub-hero__inner">
+                <div class="sub-hero__chapter">
+                    <span class="sub-hero__chapter-num">05</span>
+                    <span>Intelligence &amp; Service Offerings</span>
+                </div>
+                <h1 class="sub-hero__title">Beyond the<br>Shell scope.</h1>
+                <p class="sub-hero__tagline">
+                    The Shell audit covers our armed maritime security operations — but that is
+                    not the full picture of what Seagull does, nor the full depth of expertise
+                    Shell draws on when we are on task. This chapter is a window into the wider
+                    Seagull universe: the intelligence products powering our risk decisions,
+                    the adjacent service lines, and the partnerships that make the whole system
+                    more than the sum of its parts.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview + draft note -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="section__head">
+                <span class="accent-bar"></span>
+                <h2>What's in this chapter.</h2>
+                <p>
+                    Every block below answers one question: <em>what else can Seagull Maritime bring
+                    to a Shell operation if you asked?</em> Not a sales pitch — evidence of capability,
+                    shown the same way the rest of this portal shows compliance: documents,
+                    deliverables, and the people behind them.
+                </p>
+            </div>
+
+            <div class="draft-banner">
+                <strong>Section in build · 10 April 2026</strong>
+                This page is a working shell. The structure is locked in but the content is being
+                drafted by Richard Podmore (business development) and Olga (intelligence lead) ahead
+                of the Shell visit on 3 May 2026. Placeholder cards show the intended shape and tone
+                — evidence-led, not marketing-led. Draft notes in each card outline what will land here.
+            </div>
+
+            <div class="cards">
+
+                <!-- Block 01 · Vanguard Intelligence Reports -->
+                <a href="#" class="card card--draft">
+                    <div class="card__index">Block 01 · Intelligence</div>
+                    <div class="card__title">Vanguard Reports</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag">Partnership</span>
+                        <span class="tool-tag">Weekly cadence</span>
+                        <span class="tool-tag tool-tag--draft">Draft</span>
+                    </div>
+                    <div class="card__body">
+                        The regional intelligence products from our Vanguard Tech partnership
+                        — weekly threat assessments, situational briefs, and regional roll-ups
+                        covering the Persian Gulf, Strait of Hormuz, Red Sea, Gulf of Aden and
+                        West Africa. Every armed operation Seagull runs is informed by this
+                        feed before, during and after tasking.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">To be populated · Olga</span>
+                        <li>Sample redacted weekly report (last 2 weeks)</li>
+                        <li>Example region-specific threat brief (IOR or PG)</li>
+                        <li>Cross-reference to the RAs these reports feed into</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Status:</strong> Draft — Olga to populate with redacted samples. Live product demo available on request; no steady-state feed exposed to the portal for source-protection reasons.
+                    </div>
+                    <div class="card__cta">Draft pending ›</div>
+                </a>
+
+                <!-- Block 02 · Regional Threat Briefings -->
+                <a href="#" class="card card--draft">
+                    <div class="card__index">Block 02 · Briefings</div>
+                    <div class="card__title">Regional Threat Briefings</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag">On-demand</span>
+                        <span class="tool-tag">Client-specific</span>
+                        <span class="tool-tag tool-tag--draft">Draft</span>
+                    </div>
+                    <div class="card__body">
+                        Bespoke pre-deployment briefings delivered to client vessels, bridge teams
+                        and security details before entering a high-risk area. Drawn from the
+                        Vanguard feed, overlaid with Seagull's own operational history in the
+                        region, and delivered in the format the client needs — PDF brief, video
+                        call, or face-to-face.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">To be populated · Olga + Rich</span>
+                        <li>Sample pre-deployment briefing pack (redacted)</li>
+                        <li>Delivery formats and turnaround times</li>
+                        <li>Worked example from a recent client engagement</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Status:</strong> Draft. Pick a past engagement, redact, use as the worked example. No live client names.
+                    </div>
+                    <div class="card__cta">Draft pending ›</div>
+                </a>
+
+                <!-- Block 03 · Adjacent Service Lines -->
+                <a href="#" class="card card--draft">
+                    <div class="card__index">Block 03 · Services</div>
+                    <div class="card__title">Adjacent Service Lines</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag">IOR · WAF · Offshore</span>
+                        <span class="tool-tag tool-tag--draft">Draft</span>
+                    </div>
+                    <div class="card__body">
+                        The full Seagull service catalogue beyond armed maritime security —
+                        vessel transfers, SEV/MSLO operations in West Africa, offshore support
+                        services, port escorts, training provision, and compliance advisory.
+                        Every line documented against the same management system Shell is
+                        reviewing today.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">To be populated · Rich</span>
+                        <li>One-paragraph evidence card per service line</li>
+                        <li>Links to the relevant SOPs and RAs in Chapter 07</li>
+                        <li>Geographic coverage map (no client names)</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Status:</strong> Draft. Frame each service as a capability evidenced by a document, not a promise. If it is not already in the MS, it does not go on this page.
+                    </div>
+                    <div class="card__cta">Draft pending ›</div>
+                </a>
+
+                <!-- Block 04 · Training and Advisory -->
+                <a href="#" class="card card--draft">
+                    <div class="card__index">Block 04 · Advisory</div>
+                    <div class="card__title">Training &amp; Advisory</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag">ISO 28007 · 18788 · 45001</span>
+                        <span class="tool-tag tool-tag--draft">Draft</span>
+                    </div>
+                    <div class="card__body">
+                        Training courses, audit preparation support, and compliance advisory
+                        services Seagull provides to other operators in the sector. Every
+                        course sits on the LMS showcased in Chapter 02, every advisory engagement
+                        is run against the same procedures that govern our own operations.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">To be populated · Rich</span>
+                        <li>Published training catalogue (PCASP, staff induction, human rights)</li>
+                        <li>Advisory engagement model — what we offer, what we don't</li>
+                        <li>Cross-reference to the LMS and the competence matrix</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Status:</strong> Draft. Keep the positioning practitioner-to-practitioner. No "market-leading" language, no capability statements without a document to back them.
+                    </div>
+                    <div class="card__cta">Draft pending ›</div>
+                </a>
+
+                <!-- Block 05 · Partnerships -->
+                <a href="#" class="card card--draft">
+                    <div class="card__index">Block 05 · Partnerships</div>
+                    <div class="card__title">Partnerships &amp; Ecosystem</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag">Vanguard Tech</span>
+                        <span class="tool-tag">PSS Shipping</span>
+                        <span class="tool-tag tool-tag--draft">Draft</span>
+                    </div>
+                    <div class="card__body">
+                        The wider Seagull ecosystem — Vanguard Tech for intelligence, PSS
+                        Shipping for vessel operations, ICoCA membership, flag state
+                        relationships — shown as they actually function in the day-to-day,
+                        with the handoff points documented in the management system.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">To be populated · Rich + Olga</span>
+                        <li>Organisation diagram of the wider group and partnerships</li>
+                        <li>Which procedure governs each handoff</li>
+                        <li>Membership list (ICoCA, flag state schemes, industry bodies)</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Status:</strong> Draft. Use the S22 corporate structure diagram as the starting visual.
+                    </div>
+                    <div class="card__cta">Draft pending ›</div>
+                </a>
+
+                <!-- Block 06 · Open Slot -->
+                <a href="#" class="card card--draft">
+                    <div class="card__index">Block 06 · Reserved</div>
+                    <div class="card__title">Reserved Slot</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag tool-tag--draft">Open</span>
+                    </div>
+                    <div class="card__body">
+                        Reserved for whatever Rich or Olga feel is missing from the picture
+                        above — an additional service line, a case study, a client capability
+                        statement, a regional focus. The grid supports up to eight blocks
+                        cleanly; add or remove without breaking the layout.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">Guidance</span>
+                        <li>If it cannot be backed by a document or an existing engagement, leave it empty</li>
+                        <li>If it reads like a brochure, rewrite it or cut it</li>
+                        <li>If in doubt, show it to Darren before it lands on the portal</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Status:</strong> Empty slot. Delete the block if nothing fills it by the week before the Shell visit.
+                    </div>
+                    <div class="card__cta">Slot open ›</div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Tone guardrails -->
+    <section class="section" style="padding-top: 0;">
+        <div class="container">
+            <div class="section__head">
+                <span class="accent-bar"></span>
+                <h2>A note on tone.</h2>
+                <p>
+                    This chapter exists because Shell should see the full shape of Seagull Maritime,
+                    not just the armed operations covered by the audit. But the rest of this portal
+                    earns credibility by being evidence-led — every claim anchored to a document,
+                    every capability to a procedure. This chapter is held to the same standard.
+                    No superlatives. No "market-leading". No capability asserted without something
+                    in the management system to back it. Shell are compliance people. They will
+                    smell a sales deck a mile off. Keep it practitioner-to-practitioner.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__mark">
+                <img src="assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </div>
+            <div class="site-footer__tag">
+                Your Watch.
+                <strong>Our Standard.</strong>
+            </div>
+            <div class="site-footer__meta">
+                Confidential · Prepared for Shell Maritime Security Team · 2026
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

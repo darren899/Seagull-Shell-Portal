@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>06 · Programme · The Shell Audit · Seagull Maritime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/shell.css">
+    <style>
+        /* Chapter-06 styles */
+        .pg-lede { max-width: 780px; margin: 0 auto 2.5rem; }
+        .pg-lede p { color: var(--text-muted); font-size: 1.02rem; line-height: 1.72; margin: 0 0 1.1rem; }
+        .pg-lede p em { color: #fff; font-style: normal; font-weight: 600; }
+
+        /* Headline stat row */
+        .pg-headline {
+            max-width: 1040px;
+            margin: 0 auto 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.9rem;
+        }
+        .pg-stat {
+            padding: 1.5rem 1.4rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .pg-stat::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: linear-gradient(180deg, var(--shell-red), var(--shell-yellow));
+        }
+        .pg-stat__num {
+            font-family: var(--font-display);
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        .pg-stat__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.4;
+        }
+
+        /* Section heading */
+        .pg-sec {
+            max-width: 1040px;
+            margin: 2.5rem auto 1.25rem;
+        }
+        .pg-sec__eyebrow {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.4rem;
+        }
+        .pg-sec__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.5rem;
+        }
+        .pg-sec__lead {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            max-width: 780px;
+            margin: 0;
+        }
+
+        /* Phase cards */
+        .phase {
+            max-width: 1040px;
+            margin: 0 auto 1.4rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .phase__head {
+            padding: 1.4rem 1.6rem 1.2rem;
+            border-bottom: 1px solid var(--surface-border);
+            background: rgba(255,255,255,0.015);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1.3rem;
+            align-items: center;
+        }
+        .phase__num {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--shell-yellow);
+            line-height: 1;
+            padding: 0.2rem 0.9rem;
+            border: 2px solid var(--shell-yellow);
+            border-radius: 6px;
+        }
+        .phase__title-wrap { min-width: 0; }
+        .phase__label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 0.25rem;
+        }
+        .phase__title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
+        }
+        .phase__month {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-align: right;
+            white-space: nowrap;
+        }
+        .phase__progress {
+            padding: 1rem 1.6rem;
+            border-bottom: 1px solid var(--surface-border);
+            background: rgba(0,0,0,0.25);
+        }
+        .phase__progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.55rem;
+        }
+        .phase__progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--shell-red), var(--shell-yellow));
+            border-radius: 4px;
+        }
+        .phase__progress-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .phase__progress-text strong { color: #fff; font-weight: 700; }
+
+        .phase__tasks {
+            padding: 1rem 1.6rem 1.4rem;
+        }
+        .phase__task {
+            display: grid;
+            grid-template-columns: 52px 1fr auto;
+            gap: 1rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            align-items: start;
+        }
+        .phase__task:last-child { border-bottom: none; }
+        .phase__task-ref {
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+        }
+        .phase__task-body {
+            min-width: 0;
+        }
+        .phase__task-title {
+            font-family: var(--font-display);
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.4;
+            margin-bottom: 0.25rem;
+        }
+        .phase__task-meta {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .phase__task-meta code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.72rem;
+            color: var(--shell-yellow);
+            background: rgba(251,206,7,0.08);
+            padding: 0.08rem 0.35rem;
+            border-radius: 3px;
+            margin-right: 0.3rem;
+        }
+        .phase__task-status {
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.3rem 0.65rem;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        .status--done {
+            background: rgba(251,206,7,0.12);
+            color: var(--shell-yellow);
+            border: 1px solid rgba(251,206,7,0.35);
+        }
+        .status--progress {
+            background: rgba(66,136,255,0.12);
+            color: #7fb0ff;
+            border: 1px solid rgba(66,136,255,0.35);
+        }
+        .status--pending {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+        .status--external {
+            background: rgba(221,29,33,0.12);
+            color: #ff6b6f;
+            border: 1px solid rgba(221,29,33,0.35);
+        }
+
+        /* 45001 clause grid */
+        .clauses {
+            max-width: 1040px;
+            margin: 0 auto 2.5rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 1.6rem 1.8rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .clauses::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--shell-red), var(--shell-yellow));
+        }
+        .clauses__head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.3rem;
+        }
+        .clauses__title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
+        }
+        .clauses__score {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+        }
+        .clauses__grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
+            gap: 0.5rem;
+        }
+        .clause {
+            padding: 0.65rem 0.7rem;
+            background: rgba(251,206,7,0.06);
+            border: 1px solid rgba(251,206,7,0.25);
+            border-radius: 5px;
+            text-align: center;
+        }
+        .clause__num {
+            font-family: var(--font-display);
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--shell-yellow);
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+        .clause__name {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        /* Stage 1 / close-out cue */
+        .next-up {
+            max-width: 1040px;
+            margin: 2.5rem auto 0;
+            padding: 1.8rem 2rem;
+            border: 1px solid rgba(251,206,7,0.35);
+            background: linear-gradient(135deg, rgba(221,29,33,0.08), rgba(251,206,7,0.06));
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .next-up::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--shell-red) 30%, var(--shell-yellow) 70%, transparent);
+        }
+        .next-up__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-red);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.6rem;
+        }
+        .next-up__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.25rem, 2.2vw, 1.6rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.9rem;
+            line-height: 1.3;
+        }
+        .next-up__body {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+        .next-up__body em { color: #fff; font-style: normal; font-weight: 600; }
+
+        /* Live CWP download panel */
+        .cwp-dl {
+            max-width: 1040px;
+            margin: 0 auto 3rem;
+            padding: 1.6rem 1.9rem;
+            border: 1px solid rgba(251,206,7,0.4);
+            background:
+                linear-gradient(135deg, rgba(221,29,33,0.12), rgba(251,206,7,0.08)),
+                var(--surface);
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cwp-dl::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: linear-gradient(180deg, var(--shell-red), var(--shell-yellow));
+        }
+        .cwp-dl__label {
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.45rem;
+        }
+        .cwp-dl__title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.4rem;
+            line-height: 1.3;
+        }
+        .cwp-dl__sub {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+        .cwp-dl__btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.95rem 1.6rem;
+            background: var(--shell-yellow);
+            color: #0A0A0A;
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            border-radius: 6px;
+            border: 2px solid var(--shell-yellow);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .cwp-dl__btn:hover {
+            background: transparent;
+            color: var(--shell-yellow);
+        }
+        .cwp-dl__btn svg {
+            width: 18px; height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.5;
+        }
+        @media (max-width: 680px) {
+            .cwp-dl { grid-template-columns: 1fr; text-align: left; }
+            .cwp-dl__btn { justify-self: start; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Gate enforcement -->
+    <script src="../assets/js/gate.js"></script>
+    <script>window.ShellGate && window.ShellGate.enforce();</script>
+
+    <!-- Main header -->
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="../index.html" class="site-header__logo" aria-label="Seagull Maritime">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </a>
+            <div class="site-header__prepared-for">
+                <img src="../assets/img/shell-pecten.png" alt="Shell" class="shell-pecten-mini">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sticky sub-nav -->
+    <nav class="sub-nav" aria-label="Audit journey navigation">
+        <div class="sub-nav__inner">
+            <a href="index.html" class="sub-nav__back">Back to Audit</a>
+            <div class="sub-nav__dots">
+                <a href="timeline.html"            class="sub-nav__dot" data-label="01 · Timeline"></a>
+                <a href="original-submission.html" class="sub-nav__dot" data-label="02 · Submission"></a>
+                <a href="on-site.html"             class="sub-nav__dot" data-label="03 · On-Site"></a>
+                <a href="findings.html"            class="sub-nav__dot" data-label="04 · Findings"></a>
+                <a href="closure.html"             class="sub-nav__dot" data-label="05 · Closure"></a>
+                <a href="cwp.html"                 class="sub-nav__dot sub-nav__dot--current" data-label="06 · Programme"></a>
+                <a href="documents.html"           class="sub-nav__dot" data-label="07 · Documents"></a>
+            </div>
+            <a href="documents.html" class="sub-nav__next">Next: Documents →</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="../index.html">Portal</a>
+        <span class="breadcrumb__sep">›</span>
+        <a href="index.html">The Shell Audit</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">06 · Programme</span>
+    </div>
+
+    <!-- Sub-hero -->
+    <section class="sub-hero">
+        <div class="sub-hero__waves"></div>
+        <div class="container">
+            <div class="sub-hero__inner">
+                <div class="sub-hero__chapter">
+                    <span class="sub-hero__chapter-num">06</span>
+                    <span>Chapter Six</span>
+                </div>
+                <h1 class="sub-hero__title">The Programme.</h1>
+                <p class="sub-hero__tagline">
+                    One document, four phases, fifty-two tasks. The Combined Work Programme is the
+                    spine that connects Shell's findings, ISO 45001's clauses and the Seagull
+                    integrated management system into a single line of sight — from 5 February
+                    through to 3 May.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lede -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="pg-lede">
+                <p>
+                    The Combined Work Programme — <em>SM/INT/CMP/002</em> — <em>replaces</em> the
+                    two finding-by-finding Change Management Plans originally sent back to Shell
+                    on 6 February. Those plans would have closed the findings. They would not
+                    have done much more than that. When the Seagull Management Review sat down
+                    in February and looked honestly at the state of the wider system, the
+                    conclusion was clear: Shell's findings were not a problem to patch — they
+                    were a <em>springboard</em>. The CWP was built to capture that pivot. One
+                    single, colour-coded master. Every row ties to at least one of three
+                    anchors: an <em>ISO 45001 clause</em>, a <em>Shell finding or OFI</em>, or
+                    a deliverable in the wider management system rebuild. Nothing lives outside
+                    it. Nothing gets done twice.
+                </p>
+                <p>
+                    The programme runs in four phases. Phase 1 (Foundation) and Phase 2 (Risk
+                    Framework &amp; Core Procedures) are closed out. Phase 3 (Implementation &amp;
+                    Evidence) is where we are now — training rollout on the LMS, internal audits
+                    in progress, management review done. Phase 4 (Certification &amp; Review
+                    Ready) opens on 21 April with Libero's <em>ISO 45001 Stage 2 on-site audit</em>
+                    — Stage 1 (documentation review) is already done — and finishes on 3 May with
+                    Shell.
+                </p>
+            </div>
+
+            <!-- Live CWP download -->
+            <div class="cwp-dl">
+                <div>
+                    <div class="cwp-dl__label">Live working document</div>
+                    <h3 class="cwp-dl__title">Open the live Combined Work Programme</h3>
+                    <p class="cwp-dl__sub">
+                        SM/INT/CMP/002 v2.0 — the full working spreadsheet. Six tabs: Dashboard,
+                        Master Programme, Shell Findings, Shell OFIs, 45001 Clauses, MS Transition.
+                        This is the file. Not a summary, not a screenshot.
+                    </p>
+                </div>
+                <a href="../docs/SM-INT-CMP-002-Combined-Work-Programme.xlsx"
+                   class="cwp-dl__btn"
+                   download>
+                    <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+                    Download CWP (.xlsx)
+                </a>
+            </div>
+
+            <!-- Headline stat row -->
+            <div class="pg-headline">
+                <div class="pg-stat">
+                    <div class="pg-stat__num">52</div>
+                    <div class="pg-stat__label">Tasks in the programme</div>
+                </div>
+                <div class="pg-stat">
+                    <div class="pg-stat__num">4</div>
+                    <div class="pg-stat__label">Phases · Feb through May</div>
+                </div>
+                <div class="pg-stat">
+                    <div class="pg-stat__num">35</div>
+                    <div class="pg-stat__label">Completed to date</div>
+                </div>
+                <div class="pg-stat">
+                    <div class="pg-stat__num">25 / 25</div>
+                    <div class="pg-stat__label">ISO 45001 clauses covered</div>
+                </div>
+            </div>
+
+            <!-- PHASE BREAKDOWN -->
+            <div class="pg-sec">
+                <div class="pg-sec__eyebrow">Section One · The four phases</div>
+                <h2 class="pg-sec__title">Phased delivery, honest status</h2>
+                <p class="pg-sec__lead">
+                    Every phase shown with live status against each task. Completed items carry
+                    their document reference. In-progress items are flagged honestly — we are not
+                    pretending Phase 4 has started. The only item outside our control sits in
+                    Phase 1 (Malta, Finding 1).
+                </p>
+            </div>
+
+            <!-- PHASE 1 -->
+            <div class="phase">
+                <div class="phase__head">
+                    <div class="phase__num">01</div>
+                    <div class="phase__title-wrap">
+                        <div class="phase__label">Phase One</div>
+                        <h3 class="phase__title">Foundation — policies, legal, document control</h3>
+                    </div>
+                    <div class="phase__month">February 2026</div>
+                </div>
+                <div class="phase__progress">
+                    <div class="phase__progress-bar"><div class="phase__progress-fill" style="width:93%"></div></div>
+                    <div class="phase__progress-text">
+                        <span><strong>13 of 14</strong> complete</span>
+                        <span>1 external dependency (Malta)</span>
+                    </div>
+                </div>
+                <div class="phase__tasks">
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.01</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Define OH&amp;S management system scope</div>
+                            <div class="phase__task-meta"><code>SM/HSE/DOC/001</code> · 45001 Cl. 4.3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.02</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Context of the Organisation — SWOT / PESTLE</div>
+                            <div class="phase__task-meta"><code>SM/INT/DOC/002</code> · Pre-war v1.0 + Iran-escalation v2.0 · 45001 Cl. 4.1</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.03</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Interested Parties Register (incl. VPSHR)</div>
+                            <div class="phase__task-meta"><code>SM/HSE/REG/001</code> · 21 parties, Power/Interest matrix · F6 · 45001 Cl. 4.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.04</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">OH&amp;S Policy — reissue with VPSHR &amp; 45001 commitments</div>
+                            <div class="phase__task-meta"><code>SM/HSE/POL/001</code> · F6 · 45001 Cl. 5.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.05</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Legal &amp; Regulatory Requirements Register</div>
+                            <div class="phase__task-meta"><code>SM/HSE/REG/002</code> · 37 entries across 5 jurisdictions · F1 · 45001 Cl. 6.1.3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.06</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Management of Change Procedure + form + register</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/013</code> <code>FORM/003</code> <code>REG/009</code> · OFI1 · 45001 Cl. 8.1.3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.07</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Media &amp; Social Media Policy — finalise and issue</div>
+                            <div class="phase__task-meta"><code>SM/INT/POL/008</code> · F3 · 45001 Cl. 7.4</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.08</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Drugs &amp; Alcohol Policy — scope across all personnel</div>
+                            <div class="phase__task-meta"><code>SM/INT/POL/010</code> <code>SM/INT/PRO/021</code> · OFI7</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.09</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Document Control Procedure — update for 45001</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/002</code> · 45001 Cl. 7.5</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.10</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Sanctions screening — embed OFAC / US check</div>
+                            <div class="phase__task-meta"><code>SM/INT/POL/002</code> · 30K-entry Sanctions Screener Tool · OFI3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.11</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Malta exemption letter — chase and document</div>
+                            <div class="phase__task-meta">F1 · Formal request lodged · Escalation issued 9 April 2026 · Malta Security Service response awaited</div>
+                        </div>
+                        <div class="phase__task-status status--external">External</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.12</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Insurance documentation alignment</div>
+                            <div class="phase__task-meta">F4 · Cover and certificates reissued</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.14</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Internal Audit Programme review &amp; gap analysis</div>
+                            <div class="phase__task-meta"><code>SM/INT/RPT/001</code> · Self-review produced, NCRs raised · 45001 Cl. 9.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">1.15</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Internal Audit Schedule 2026 — 12-month rolling</div>
+                            <div class="phase__task-meta"><code>SM/INT/REG/003</code> · 45001 Cl. 9.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 2 -->
+            <div class="phase">
+                <div class="phase__head">
+                    <div class="phase__num">02</div>
+                    <div class="phase__title-wrap">
+                        <div class="phase__label">Phase Two</div>
+                        <h3 class="phase__title">Risk framework &amp; core procedures</h3>
+                    </div>
+                    <div class="phase__month">March 2026</div>
+                </div>
+                <div class="phase__progress">
+                    <div class="phase__progress-bar"><div class="phase__progress-fill" style="width:88%"></div></div>
+                    <div class="phase__progress-text">
+                        <span><strong>15 of 17</strong> complete</span>
+                        <span>1 in progress · 1 pending (MOU training)</span>
+                    </div>
+                </div>
+                <div class="phase__tasks">
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.01</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Hazard ID &amp; Risk Assessment Procedure</div>
+                            <div class="phase__task-meta"><code>SM/HSE/PRO/001</code> · F2 · 45001 Cl. 6.1.1 &amp; 6.1.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.02</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">OH&amp;S Objectives, Targets &amp; KPIs</div>
+                            <div class="phase__task-meta"><code>SM/INT/REG/006</code> · 32 SMART objectives · 45001 Cl. 6.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.03</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Roles, Responsibilities &amp; Authorities matrix</div>
+                            <div class="phase__task-meta"><code>SM/INT/DOC/005</code> · 48 functions, 11 role categories · 45001 Cl. 5.3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.04</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Worker Consultation &amp; Participation Procedure</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/014</code> · 10 sections · 45001 Cl. 5.4</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.05</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Emergency Preparedness &amp; Response Procedure</div>
+                            <div class="phase__task-meta"><code>SM/HSE/PRO/003</code> · F7 · 45001 Cl. 8.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.06</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Incident &amp; Crisis Management Procedure</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/006</code> · 45001 Cl. 10.1</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.07</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">NCR / OFI / CAPA Procedure + Register + Form</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/001</code> <code>REG/004</code> <code>FORM/001</code> · 45001 Cl. 10.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.08</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">VPSHR integration — embed into operational documents</div>
+                            <div class="phase__task-meta">F6 · Embedded in IOR SOP, annexes, training decks, Code of Conduct — final sweep ongoing</div>
+                        </div>
+                        <div class="phase__task-status status--progress">In Progress</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.09</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Procurement &amp; Contractor H&amp;S Procedure</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/017</code> · 45001 Cl. 8.1.4</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.10</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">SEV Minimum Standards — full supplier ecosystem</div>
+                            <div class="phase__task-meta"><code>SM/SEC/PRO/004</code> <code>PRO/005</code> <code>FORM/001-004</code> · OFI6</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.11</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Vessel delay wording — SOP amendment</div>
+                            <div class="phase__task-meta">IOR SOP Annex D · OFI4</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.12</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">UKMTO reporting — SOP amendment</div>
+                            <div class="phase__task-meta">IOR SOP Annex E · UKMTO as primary reporting channel · OFI5</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.13</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Nigerian Navy MOU — training review</div>
+                            <div class="phase__task-meta">F5 · MOU received · Training component scope being defined with HR &amp; Training</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Pending</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.14</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Management Review Procedure — update to 45001</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/019</code> · OFI2 · 45001 Cl. 9.3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.15</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Internal Audit Procedure — confirm 45001 alignment</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/003</code> · 45001 Cl. 9.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.17</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">9x H&amp;S Risk Assessments created &amp; distributed</div>
+                            <div class="phase__task-meta"><code>SM/HSE/RA/002–010</code> · 144 hazards · F2 · 45001 Cl. 6.1.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">2.18</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Continual Improvement Procedure</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/015</code> · 45001 Cl. 10.3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 3 -->
+            <div class="phase">
+                <div class="phase__head">
+                    <div class="phase__num">03</div>
+                    <div class="phase__title-wrap">
+                        <div class="phase__label">Phase Three</div>
+                        <h3 class="phase__title">Implementation &amp; evidence — training, audit, review</h3>
+                    </div>
+                    <div class="phase__month">April 2026</div>
+                </div>
+                <div class="phase__progress">
+                    <div class="phase__progress-bar"><div class="phase__progress-fill" style="width:75%"></div></div>
+                    <div class="phase__progress-text">
+                        <span><strong>7 of 11</strong> complete</span>
+                        <span>3 in progress · 2 pending (MS transition, MOU training)</span>
+                    </div>
+                </div>
+                <div class="phase__tasks">
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.01</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Training needs analysis — all new &amp; amended procedures</div>
+                            <div class="phase__task-meta"><code>SM/INT/PRO/012</code> · 45001 Cl. 7.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.02</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Training programme — design &amp; schedule</div>
+                            <div class="phase__task-meta">21 courses built in PptxGenJS · LMS deployment configured · F2, F3, F6 · 45001 Cl. 7.2 &amp; 7.3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.03</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Training rollout — Batch 1 (core H&amp;S, MoC, incident)</div>
+                            <div class="phase__task-meta">LMS live 8 April · Courses deployed · Pavel-endorsed 20 April deadline · F2, OFI1</div>
+                        </div>
+                        <div class="phase__task-status status--progress">In Progress</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.04</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Training rollout — Batch 2 (media, VPSHR, D&amp;A)</div>
+                            <div class="phase__task-meta">All courses live on LMS · Completion tracked via "At Risk" tab · F3, F6, OFI7</div>
+                        </div>
+                        <div class="phase__task-status status--progress">In Progress</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.05</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">PCASP briefing to Masters — formalise and distribute</div>
+                            <div class="phase__task-meta">Masters Briefing v2.0 (15 slides) · Skiff ID Guide IOR + SRS-GoA · OFI8</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.06</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">IRT Exercise — plan, conduct, document</div>
+                            <div class="phase__task-meta"><code>SM/HSE/RPT/001</code> · Piraeus office fire scenario · F7 · 45001 Cl. 8.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.07</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Management Review #1 — conducted to 45001 agenda</div>
+                            <div class="phase__task-meta">SM-INT-MRM-001 v1.1 · Data maturity note included · OFI2 · 45001 Cl. 9.3</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.08</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Internal Audit — 2 audits complete, more scheduled</div>
+                            <div class="phase__task-meta">IA-26-001 (Doc Control) + IA-26-002 (Risk Mgmt) with live CMPs · 45001 Cl. 9.2</div>
+                        </div>
+                        <div class="phase__task-status status--progress">In Progress</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.09</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Competence assessment matrix — high-risk roles</div>
+                            <div class="phase__task-meta"><code>SM/INT/REG/008</code> · 21 courses × 3 role categories × 41 personnel · 45001 Cl. 7.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.10</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Legal register — responsible person review</div>
+                            <div class="phase__task-meta"><code>SM/HSE/REG/002</code> · Review cycle embedded · 45001 Cl. 6.1.3 &amp; 9.1.2</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">3.12</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Nigerian Navy MOU training — delivered</div>
+                            <div class="phase__task-meta">F5 · Dependent on 2.13 scope definition</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Pending</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 4 -->
+            <div class="phase">
+                <div class="phase__head">
+                    <div class="phase__num">04</div>
+                    <div class="phase__title-wrap">
+                        <div class="phase__label">Phase Four</div>
+                        <h3 class="phase__title">Certification &amp; review ready</h3>
+                    </div>
+                    <div class="phase__month">April – May 2026</div>
+                </div>
+                <div class="phase__progress">
+                    <div class="phase__progress-bar"><div class="phase__progress-fill" style="width:13%"></div></div>
+                    <div class="phase__progress-text">
+                        <span><strong>1 of 8</strong> complete</span>
+                        <span>Libero Stage 2 on-site 21 April · Shell close-out 3 May</span>
+                    </div>
+                </div>
+                <div class="phase__tasks">
+                    <div class="phase__task">
+                        <div class="phase__task-ref">4.00</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">ISO 45001 Stage 1 Audit — Documentation Review</div>
+                            <div class="phase__task-meta">Libero · Documentation pack submitted · Group certification scope with entity annex accepted</div>
+                        </div>
+                        <div class="phase__task-status status--done">Complete</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">4.01</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">ISO 45001 Stage 2 Audit — On-Site</div>
+                            <div class="phase__task-meta">Libero · 21–25 April 2026 · Flights booked · Live system walk-through against all 25 clauses</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Scheduled</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">4.02</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Stage 2 nonconformities — address any findings</div>
+                            <div class="phase__task-meta">Buffer week before Shell · Corrective action records via NCR / CAPA register</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Scheduled</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">4.03</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Shell review preparation — compile evidence pack</div>
+                            <div class="phase__task-meta">F1–F7 · Week of 28 April · Chapter 05 of this portal IS the pack</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Scheduled</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">4.04</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Shell close-out — 3 May 2026 (provisional)</div>
+                            <div class="phase__task-meta">Andy Keane / Dennis Kerlin / Neil Murray · Likely remote format</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Scheduled</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">4.05</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Post-Shell review actions (if any)</div>
+                            <div class="phase__task-meta">Action tracker · Captured via NCR/OFI/CAPA register</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Pending</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">4.06</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">ISO 45001 certification issuance &amp; surveillance planning</div>
+                            <div class="phase__task-meta">Post-Stage 2 · Certificate issued by Libero · Year 1 surveillance cycle scoped</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Pending</div>
+                    </div>
+                    <div class="phase__task">
+                        <div class="phase__task-ref">4.07</div>
+                        <div class="phase__task-body">
+                            <div class="phase__task-title">Continual improvement cycle — documented</div>
+                            <div class="phase__task-meta">Improvement log entries · 45001 Cl. 10.3 · Ongoing from 1 May</div>
+                        </div>
+                        <div class="phase__task-status status--pending">Ongoing</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 45001 CLAUSES -->
+            <div class="pg-sec">
+                <div class="pg-sec__eyebrow">Section Two · ISO 45001 coverage</div>
+                <h2 class="pg-sec__title">Every clause, evidenced</h2>
+                <p class="pg-sec__lead">
+                    The CWP carries a live dashboard tab cross-referencing every ISO 45001:2018
+                    clause to the Seagull document or evidence that demonstrates conformance.
+                    All 25 clauses are currently green. The Shell findings thread through it as
+                    overlaps, not as a separate workstream.
+                </p>
+            </div>
+
+            <div class="clauses">
+                <div class="clauses__head">
+                    <h3 class="clauses__title">ISO 45001:2018 Clause Compliance Register</h3>
+                    <div class="clauses__score">25 of 25 clauses covered · Complete</div>
+                </div>
+                <div class="clauses__grid">
+                    <div class="clause"><div class="clause__num">4.1</div><div class="clause__name">Context</div></div>
+                    <div class="clause"><div class="clause__num">4.2</div><div class="clause__name">Interested parties</div></div>
+                    <div class="clause"><div class="clause__num">4.3</div><div class="clause__name">Scope</div></div>
+                    <div class="clause"><div class="clause__num">4.4</div><div class="clause__name">OH&amp;S MS</div></div>
+                    <div class="clause"><div class="clause__num">5.1</div><div class="clause__name">Leadership</div></div>
+                    <div class="clause"><div class="clause__num">5.2</div><div class="clause__name">OH&amp;S Policy</div></div>
+                    <div class="clause"><div class="clause__num">5.3</div><div class="clause__name">Roles / RACI</div></div>
+                    <div class="clause"><div class="clause__num">5.4</div><div class="clause__name">Consultation</div></div>
+                    <div class="clause"><div class="clause__num">6.1.1</div><div class="clause__name">Risks &amp; ops</div></div>
+                    <div class="clause"><div class="clause__num">6.1.2</div><div class="clause__name">Hazard ID</div></div>
+                    <div class="clause"><div class="clause__num">6.1.3</div><div class="clause__name">Legal reqs</div></div>
+                    <div class="clause"><div class="clause__num">6.1.4</div><div class="clause__name">Planning action</div></div>
+                    <div class="clause"><div class="clause__num">6.2</div><div class="clause__name">Objectives</div></div>
+                    <div class="clause"><div class="clause__num">7.1</div><div class="clause__name">Resources</div></div>
+                    <div class="clause"><div class="clause__num">7.2</div><div class="clause__name">Competence</div></div>
+                    <div class="clause"><div class="clause__num">7.3</div><div class="clause__name">Awareness</div></div>
+                    <div class="clause"><div class="clause__num">7.4</div><div class="clause__name">Communication</div></div>
+                    <div class="clause"><div class="clause__num">7.5</div><div class="clause__name">Documented info</div></div>
+                    <div class="clause"><div class="clause__num">8.1.1</div><div class="clause__name">Ops planning</div></div>
+                    <div class="clause"><div class="clause__num">8.1.2</div><div class="clause__name">Hazard elim.</div></div>
+                    <div class="clause"><div class="clause__num">8.1.3</div><div class="clause__name">MoC</div></div>
+                    <div class="clause"><div class="clause__num">8.1.4</div><div class="clause__name">Procurement</div></div>
+                    <div class="clause"><div class="clause__num">8.2</div><div class="clause__name">Emergency</div></div>
+                    <div class="clause"><div class="clause__num">9.1</div><div class="clause__name">Monitoring</div></div>
+                    <div class="clause"><div class="clause__num">9.2</div><div class="clause__name">Internal audit</div></div>
+                    <div class="clause"><div class="clause__num">9.3</div><div class="clause__name">Mgmt review</div></div>
+                    <div class="clause"><div class="clause__num">10.1</div><div class="clause__name">Incident / NC</div></div>
+                    <div class="clause"><div class="clause__num">10.2</div><div class="clause__name">Corrective action</div></div>
+                    <div class="clause"><div class="clause__num">10.3</div><div class="clause__name">Continual improve</div></div>
+                </div>
+            </div>
+
+            <!-- Next up block -->
+            <div class="next-up">
+                <div class="next-up__label">The road to 3 May</div>
+                <h2 class="next-up__title">What's left on the programme between now and the close-out visit</h2>
+                <p class="next-up__body">
+                    Two workstreams stay live until Shell reconnect with us. <em>Training
+                    completion</em> on the LMS — Pavel's hard deadline of 20 April, with
+                    completion rates tracked on the "At Risk" tab. And <em>Libero's Stage 2
+                    on-site audit</em>, opening on 21 April with flights booked (Stage 1
+                    documentation review is already behind us). The buffer week between
+                    Stage 2 and Shell exists on purpose: any Stage 2 nonconformity is already
+                    scoped into the CAPA process, and the Chapter 05 evidence pack is ready
+                    to be lifted straight off this portal on the day.
+                </p>
+            </div>
+
+            <!-- Chapter nav footer -->
+            <nav class="chapter-nav" aria-label="Chapter navigation">
+                <a href="closure.html" class="chapter-nav__link chapter-nav__link--prev">
+                    <span class="chapter-nav__dir">← Previous</span>
+                    <span class="chapter-nav__title">05 · Closure</span>
+                </a>
+                <a href="documents.html" class="chapter-nav__link chapter-nav__link--next">
+                    <span class="chapter-nav__dir">Next →</span>
+                    <span class="chapter-nav__title">07 · Documents</span>
+                </a>
+            </nav>
+        </div>
+    </section>
+</body>
+</html>

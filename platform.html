@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Our Tools · Seagull Maritime × Shell MS Team</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/shell.css">
+    <style>
+        /* Tool card tweaks — inline so shell.css stays untouched */
+
+        /* ----- Row-for-row alignment across all 4 tool cards -----
+           Use CSS subgrid so index / title / meta / body / seelist / access / cta
+           each share a row track with their counterparts in the other cards.
+           Every column's title row matches the tallest title, every body row
+           matches the tallest body, etc. No min-height hacks, no diagonals. */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            /* Seven explicit rows matching the card children —
+               one per element so subgrid can pick them up. */
+            grid-template-rows: auto auto auto auto auto auto auto;
+            align-items: stretch;
+        }
+        .cards .card {
+            display: grid;
+            grid-template-rows: subgrid;
+            grid-row: span 7;
+            /* cancel the flex-column base from shell.css */
+            min-height: 0;
+        }
+        .cards .card > .card__index,
+        .cards .card > .card__title,
+        .cards .card > .tool-meta,
+        .cards .card > .card__body,
+        .cards .card > .tool-seelist,
+        .cards .card > .tool-access,
+        .cards .card > .card__cta {
+            min-width: 0;
+        }
+        .cards .card > .card__body {
+            flex: 0 0 auto; /* subgrid controls sizing now, kill the old flex */
+        }
+
+        .tool-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin: 0.9rem 0 0.75rem;
+            align-content: flex-start;
+        }
+        .tool-tag {
+            display: inline-block;
+            font-family: var(--font-display);
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.32rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(251, 206, 7, 0.12);
+            color: var(--shell-yellow);
+            border: 1px solid rgba(251, 206, 7, 0.28);
+        }
+        .tool-tag--red {
+            background: rgba(221, 29, 33, 0.12);
+            color: #ff5a5e;
+            border-color: rgba(221, 29, 33, 0.32);
+        }
+        .tool-seelist {
+            margin: 0.9rem 0 0;
+            padding: 0.9rem 0 0;
+            border-top: 1px solid var(--surface-border);
+            list-style: none;
+        }
+        .tool-seelist li {
+            position: relative;
+            padding-left: 1.1rem;
+            margin-bottom: 0.45rem;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: var(--text-muted, #c4c4c4);
+        }
+        .tool-seelist li:last-child { margin-bottom: 0; }
+        .tool-seelist li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--shell-yellow);
+            font-weight: 700;
+        }
+        .tool-seelist-label {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--shell-red);
+            margin-bottom: 0.5rem;
+        }
+        .tool-access {
+            margin-top: auto;
+            padding-top: 0.9rem;
+            border-top: 1px solid var(--surface-border);
+            font-size: 0.78rem;
+            color: var(--text-muted, #a9a9a9);
+            line-height: 1.5;
+        }
+        .tool-access strong {
+            color: #e6e6e6;
+            font-weight: 600;
+        }
+        /* Coming-soon style indicator for sanctions placeholder */
+        .card--placeholder .card__cta {
+            opacity: 0.55;
+        }
+    </style>
+</head>
+<body>
+    <!-- Gate enforcement -->
+    <script src="assets/js/gate.js"></script>
+    <script>window.ShellGate && window.ShellGate.enforce();</script>
+
+    <!-- Main header -->
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="index.html" class="site-header__logo" aria-label="Seagull Maritime">
+                <img src="assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </a>
+            <div class="site-header__prepared-for">
+                <img src="assets/img/shell-pecten.png" alt="Shell" class="shell-pecten-mini">
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="index.html">Portal</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">Our Tools</span>
+    </div>
+
+    <!-- Sub-hero -->
+    <section class="sub-hero">
+        <div class="sub-hero__waves"></div>
+        <div class="container">
+            <div class="sub-hero__inner">
+                <div class="sub-hero__chapter">
+                    <span class="sub-hero__chapter-num">02</span>
+                    <span>Platform</span>
+                </div>
+                <h1 class="sub-hero__title">The tools<br>behind the system.</h1>
+                <p class="sub-hero__tagline">
+                    A compliance system is only as strong as the tools that run it every day.
+                    Four purpose-built platforms now sit behind Seagull Maritime — learning,
+                    reporting, screening and sanctions — each connected to the wider management
+                    system and each open for Shell to inspect. Demo logins will be provided
+                    alongside this portal for reviewers to explore in full.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="section__head">
+                <span class="accent-bar"></span>
+                <h2>Four tools. One system.</h2>
+                <p>Each of these platforms is already live and in daily use across Seagull Maritime. None of them are "prepared for Shell" — they were built for us, for the way we work, and Shell is welcome to look under the bonnet.</p>
+            </div>
+
+            <div class="cards">
+
+                <!-- Tool 01 · LMS -->
+                <a href="https://learn.seagullmaritimeltd.com" target="_blank" rel="noopener" class="card">
+                    <div class="card__index">Tool 01 · Learning</div>
+                    <div class="card__title">The LMS</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag">21 courses live</span>
+                        <span class="tool-tag">AI quiz generation</span>
+                        <span class="tool-tag">Multi-tenant</span>
+                    </div>
+                    <div class="card__body">
+                        A full learning management system hosting every course a Seagull operator,
+                        shore-based staffer or manager needs. Each course is mapped to a role, a
+                        standard, and an ISO 45001 competence requirement. AI-generated quizzes, automatic
+                        certificates, an "at risk" tab for repeat quiz failures, and a gamified
+                        leaderboard to keep engagement honest.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">What Shell will see</span>
+                        <li>The full course library — 21 published courses across MS awareness, SOPs, risk management, human rights and legal compliance</li>
+                        <li>Live completion data per user, per course, per category</li>
+                        <li>The "at risk" tracker showing where retraining is triggered automatically</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Access:</strong> Demo reviewer account will be provided in the audit pack. Hosted at <em>learn.seagullmaritimeltd.com</em>.
+                    </div>
+                    <div class="card__cta">Open the LMS ↗</div>
+                </a>
+
+                <!-- Tool 02 · HSE App -->
+                <a href="https://report.seagullmaritimeltd.com" target="_blank" rel="noopener" class="card">
+                    <div class="card__index">Tool 02 · Reporting</div>
+                    <div class="card__title">HSE Reporting App</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag">Incidents · Near misses · Hazards</span>
+                        <span class="tool-tag">Mobile-first</span>
+                    </div>
+                    <div class="card__body">
+                        The reporting backbone of our health, safety and environment system. Any
+                        Seagull operator — ashore or afloat — can raise an incident, a near-miss,
+                        a hazard observation or a suggestion in under two minutes from their phone.
+                        Every report flows straight to the GCD, is logged against the relevant RA,
+                        and feeds the monthly HSE review.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">What Shell will see</span>
+                        <li>The live incident log — anonymised where needed, but every entry traceable to an RA, a control, and a corrective action</li>
+                        <li>The documents library serving BRAGs and method statements to operators in the field</li>
+                        <li>Change request workflow feeding the SM/INT/REG/009 Management of Change register</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Access:</strong> Demo reviewer account will be provided in the audit pack. Hosted at <em>report.seagullmaritimeltd.com</em>.
+                    </div>
+                    <div class="card__cta">Open the app ↗</div>
+                </a>
+
+                <!-- Tool 03 · Risk Screening Tool -->
+                <a href="https://portals.seagullmaritimeltd.com/campaign/tools/risk-screening-tool.html" target="_blank" rel="noopener" class="card">
+                    <div class="card__index">Tool 03 · Screening</div>
+                    <div class="card__title">Risk Screening Tool</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag">14-question gateway</span>
+                        <span class="tool-tag">Pre-engagement</span>
+                    </div>
+                    <div class="card__body">
+                        A pre-engagement screening gateway for every new client enquiry, new operation
+                        or scope variation. Fourteen questions across three dimensions — threat, legal,
+                        and operational — driving an automatic mapping to the relevant risk assessment,
+                        highlighting gaps, and producing a timestamped audit trail before a single
+                        contract is signed.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">What Shell will see</span>
+                        <li>The live 14-question flow, with real answers producing a real risk profile</li>
+                        <li>Direct mapping to the 9 H&amp;S RAs and the security/business RA library</li>
+                        <li>The gap detection that flagged the original "night operations" coverage gap and drove RA/010 into the system</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Access:</strong> Open (no login). Lives on the public Seagull portals domain and is used by ops and commercial daily.
+                    </div>
+                    <div class="card__cta">Try the screener ↗</div>
+                </a>
+
+                <!-- Tool 04 · Sanctions Screener -->
+                <a href="#" class="card card--placeholder">
+                    <div class="card__index">Tool 04 · Sanctions</div>
+                    <div class="card__title">Sanctions Screener</div>
+                    <div class="tool-meta">
+                        <span class="tool-tag tool-tag--red">30,000+ entries</span>
+                        <span class="tool-tag">OFAC · UK FCDO · EU FSF</span>
+                    </div>
+                    <div class="card__body">
+                        A lightweight, self-contained sanctions screening tool combining the OFAC SDN
+                        list, UK FCDO Consolidated List, and EU Financial Sanctions File into a single
+                        searchable interface. Refreshed on demand from official sources. Used before
+                        any new client, crew member or supplier is onboarded, and referenced directly
+                        from the Risk Screening Tool and the DD response procedure.
+                    </div>
+                    <ul class="tool-seelist">
+                        <span class="tool-seelist-label">What Shell will see</span>
+                        <li>The live screener with the full 30,000+ combined list loaded</li>
+                        <li>The refresh script pulling the latest data from OFAC, UK FCDO and EU FSF</li>
+                        <li>Direct cross-references from Code of Conduct, DD Response Procedure and the Risk Screening Tool</li>
+                    </ul>
+                    <div class="tool-access">
+                        <strong>Access:</strong> Hosting location confirming shortly — will sit on the Seagull portals domain alongside the Risk Screening Tool. Link will be wired before the Shell audit pack is sent.
+                    </div>
+                    <div class="card__cta">Coming online ↗</div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Context strip -->
+    <section class="section" style="padding-top: 0;">
+        <div class="container">
+            <div class="section__head">
+                <span class="accent-bar"></span>
+                <h2>Why this matters.</h2>
+                <p>
+                    A management system that lives in Word documents and spreadsheets is a system
+                    that decays between audits. These four tools are how we make the system run —
+                    every day, on every watch, across every operation. Learning is measured.
+                    Reporting is frictionless. Screening is mandatory. Sanctions are current.
+                    None of it is Shell-specific. All of it is Shell-auditable.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__mark">
+                <img src="assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </div>
+            <div class="site-footer__tag">
+                Your Watch.
+                <strong>Our Standard.</strong>
+            </div>
+            <div class="site-footer__meta">
+                Confidential · Prepared for Shell Maritime Security Team · 2026
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

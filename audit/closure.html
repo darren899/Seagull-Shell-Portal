@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>05 · Closure · The Shell Audit · Seagull Maritime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/shell.css">
+    <style>
+        /* Chapter-05 styles */
+        .cl-lede { max-width: 780px; margin: 0 auto 2.5rem; }
+        .cl-lede p { color: var(--text-muted); font-size: 1.02rem; line-height: 1.72; margin: 0 0 1.1rem; }
+        .cl-lede p em { color: #fff; font-style: normal; font-weight: 600; }
+
+        /* Impact strip */
+        .impact {
+            max-width: 1040px;
+            margin: 0 auto 3.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 0.85rem;
+        }
+        .impact__tile {
+            padding: 1.4rem 1.25rem 1.3rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .impact__tile::before {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 3px; width: 100%;
+            background: linear-gradient(90deg, var(--shell-red), var(--shell-yellow));
+        }
+        .impact__delta {
+            font-family: var(--font-display);
+            font-size: 0.66rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 0.5rem;
+        }
+        .impact__before {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            margin-right: 0.5rem;
+        }
+        .impact__arrow {
+            color: var(--shell-yellow);
+            font-weight: 800;
+        }
+        .impact__after {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            margin: 0.35rem 0 0.5rem;
+        }
+        .impact__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            line-height: 1.4;
+        }
+
+        /* Section heading */
+        .cl-sec-heading {
+            max-width: 920px;
+            margin: 2rem auto 1.25rem;
+        }
+        .cl-sec-heading__eyebrow {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.4rem;
+        }
+        .cl-sec-heading__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.5rem;
+        }
+        .cl-sec-heading__lead {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            max-width: 720px;
+            margin: 0;
+        }
+
+        /* Finding closure card */
+        .closure-card {
+            max-width: 920px;
+            margin: 0 auto 1.5rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .closure-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--shell-yellow);
+        }
+        .closure-card--external::before { background: var(--shell-red); }
+        .closure-card__head {
+            padding: 1.5rem 1.75rem 1rem 2rem;
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--surface-border);
+        }
+        .closure-card__num {
+            font-family: var(--font-display);
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--shell-yellow);
+            line-height: 0.9;
+            flex-shrink: 0;
+            min-width: 3.5rem;
+        }
+        .closure-card--external .closure-card__num { color: var(--shell-red); }
+        .closure-card__head-text { flex: 1; min-width: 220px; }
+        .closure-card__ref {
+            font-family: var(--font-display);
+            font-size: 0.66rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 0.3rem;
+        }
+        .closure-card__title {
+            font-family: var(--font-display);
+            font-size: 1.22rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.4rem;
+            line-height: 1.25;
+        }
+        .closure-card__ask {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            margin: 0;
+            font-style: italic;
+        }
+        .closure-card__ask strong { color: rgba(255,255,255,0.75); font-style: normal; font-weight: 600; }
+        .closure-card__stamp {
+            display: inline-block;
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-top: 0.6rem;
+            background: rgba(251, 206, 7, 0.15);
+            color: var(--shell-yellow);
+            border: 1px solid rgba(251, 206, 7, 0.4);
+        }
+        .closure-card--external .closure-card__stamp {
+            background: rgba(221, 29, 33, 0.12);
+            color: var(--shell-red);
+            border-color: rgba(221, 29, 33, 0.35);
+        }
+        .closure-card__body { padding: 1.25rem 2rem 1.5rem 2rem; }
+        .closure-card__built-label {
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 0.7rem;
+        }
+        .closure-card__built {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.4rem 1.5rem;
+        }
+        @media (min-width: 720px) { .closure-card__built { grid-template-columns: 1fr 1fr; } }
+        .closure-card__built li {
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            padding-left: 1.35rem;
+            position: relative;
+        }
+        .closure-card__built li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--shell-yellow);
+            font-weight: 800;
+            font-size: 0.95rem;
+        }
+        .closure-card__built li code {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.78rem;
+            background: rgba(251, 206, 7, 0.08);
+            color: var(--shell-yellow);
+            padding: 0.1rem 0.4rem;
+            border-radius: 3px;
+            letter-spacing: 0.02em;
+            font-weight: 600;
+        }
+        .closure-card__summary {
+            color: var(--text-muted);
+            font-size: 0.89rem;
+            line-height: 1.6;
+            margin: 1rem 0 0;
+            padding-top: 0.9rem;
+            border-top: 1px solid var(--surface-border);
+        }
+        .closure-card__summary em { color: #fff; font-style: normal; font-weight: 600; }
+
+        /* OFI closure table */
+        .ofi-table {
+            max-width: 920px;
+            margin: 0 auto 2rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .ofi-row {
+            display: grid;
+            grid-template-columns: 3.2rem 1fr 1fr 5.5rem;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--surface-border);
+            align-items: start;
+        }
+        .ofi-row:last-child { border-bottom: none; }
+        @media (max-width: 720px) {
+            .ofi-row { grid-template-columns: 3rem 1fr; }
+            .ofi-row__built, .ofi-row__stamp { grid-column: 2; }
+        }
+        .ofi-row__num {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--shell-yellow);
+            line-height: 1;
+        }
+        .ofi-row__title {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.35;
+            margin: 0;
+        }
+        .ofi-row__built {
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+        .ofi-row__built code {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.74rem;
+            background: rgba(251, 206, 7, 0.08);
+            color: var(--shell-yellow);
+            padding: 0.08rem 0.35rem;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        .ofi-row__stamp {
+            font-family: var(--font-display);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.25rem 0.55rem;
+            background: rgba(251, 206, 7, 0.12);
+            border: 1px solid rgba(251, 206, 7, 0.35);
+            border-radius: 3px;
+            text-align: center;
+            height: fit-content;
+        }
+
+        /* Beyond the findings */
+        .beyond {
+            max-width: 960px;
+            margin: 2.5rem auto 0;
+            padding: 2rem 2.25rem;
+            border: 1px solid rgba(251, 206, 7, 0.25);
+            background: linear-gradient(135deg, rgba(251, 206, 7, 0.04) 0%, rgba(221, 29, 33, 0.04) 100%);
+            border-radius: 12px;
+        }
+        .beyond__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.4rem;
+        }
+        .beyond__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.35rem, 2.5vw, 1.7rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.9rem;
+        }
+        .beyond__body {
+            color: var(--text-muted);
+            font-size: 0.94rem;
+            line-height: 1.65;
+            margin: 0 0 1.3rem;
+            max-width: 720px;
+        }
+        .beyond__body em { color: #fff; font-style: normal; font-weight: 600; }
+        .beyond__grid {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.7rem 1.5rem;
+        }
+        .beyond__grid li {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.88rem;
+            padding-left: 1.4rem;
+            position: relative;
+            line-height: 1.5;
+            font-weight: 600;
+        }
+        .beyond__grid li::before {
+            content: '+';
+            position: absolute;
+            left: 0;
+            color: var(--shell-yellow);
+            font-weight: 800;
+            font-size: 1.1rem;
+            top: -2px;
+        }
+
+        /* Close-out day card */
+        .closeout-day {
+            max-width: 820px;
+            margin: 3rem auto 0;
+            padding: 2.25rem 2.5rem;
+            text-align: center;
+            border: 1px solid var(--surface-border);
+            background: linear-gradient(135deg, rgba(221, 29, 33, 0.06) 0%, rgba(251, 206, 7, 0.03) 50%, rgba(10,10,10,0.5) 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .closeout-day::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--shell-red) 30%, var(--shell-yellow) 70%, transparent);
+        }
+        .closeout-day__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-red);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.8rem;
+        }
+        .closeout-day__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 3vw, 2.1rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 1.2rem;
+            line-height: 1.2;
+        }
+        .closeout-day__body {
+            color: var(--text-muted);
+            font-size: 0.98rem;
+            line-height: 1.75;
+            max-width: 620px;
+            margin: 0 auto;
+        }
+        .closeout-day__body em { color: #fff; font-style: normal; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <!-- Gate enforcement -->
+    <script src="../assets/js/gate.js"></script>
+    <script>window.ShellGate && window.ShellGate.enforce();</script>
+
+    <!-- Main header -->
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="../index.html" class="site-header__logo" aria-label="Seagull Maritime">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </a>
+            <div class="site-header__prepared-for">
+                <img src="../assets/img/shell-pecten.png" alt="Shell" class="shell-pecten-mini">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sticky sub-nav -->
+    <nav class="sub-nav" aria-label="Audit journey navigation">
+        <div class="sub-nav__inner">
+            <a href="index.html" class="sub-nav__back">Back to Audit</a>
+            <div class="sub-nav__dots">
+                <a href="timeline.html"            class="sub-nav__dot" data-label="01 · Timeline"></a>
+                <a href="original-submission.html" class="sub-nav__dot" data-label="02 · Submission"></a>
+                <a href="on-site.html"             class="sub-nav__dot" data-label="03 · On-Site"></a>
+                <a href="findings.html"            class="sub-nav__dot" data-label="04 · Findings"></a>
+                <a href="closure.html"             class="sub-nav__dot sub-nav__dot--current" data-label="05 · Closure"></a>
+                <a href="cwp.html"                 class="sub-nav__dot" data-label="06 · Programme"></a>
+                <a href="documents.html"           class="sub-nav__dot" data-label="07 · Documents"></a>
+            </div>
+            <a href="cwp.html" class="sub-nav__next">Next: Programme →</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="../index.html">Portal</a>
+        <span class="breadcrumb__sep">›</span>
+        <a href="index.html">The Shell Audit</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">05 · Closure</span>
+    </div>
+
+    <!-- Sub-hero -->
+    <section class="sub-hero">
+        <div class="sub-hero__waves"></div>
+        <div class="container">
+            <div class="sub-hero__inner">
+                <div class="sub-hero__chapter">
+                    <span class="sub-hero__chapter-num">05</span>
+                    <span>Chapter Five</span>
+                </div>
+                <h1 class="sub-hero__title">Closure.</h1>
+                <p class="sub-hero__tagline">
+                    The receipts chapter. Every finding, every OFI, every deliverable — laid out
+                    with document references and traceable to the live management system. This is
+                    the page the close-out visit was built around.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lede -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="cl-lede">
+                <p>
+                    Shell's draft report landed on <em>5 February 2026</em>. The first Change
+                    Management Plan went back the next day. What followed was not a patch job —
+                    it was a full rebuild of the Seagull management system with <em>ISO 45001 as
+                    the backbone</em> and Shell's findings as the delivery roadmap. Nine weeks
+                    later, the numbers tell their own story.
+                </p>
+                <p>
+                    Each block below takes one finding or OFI, restates what Shell asked for in a
+                    single line, and lists the deliverables that answered it — with document
+                    references you can cross-check against the Document Register in Chapter 07.
+                    Where relevant, the finding's entry on the NCR register is also listed for
+                    traceability.
+                </p>
+            </div>
+
+            <!-- Impact strip -->
+            <div class="impact">
+                <div class="impact__tile">
+                    <div class="impact__delta">Policies</div>
+                    <div>
+                        <span class="impact__before">7</span>
+                        <span class="impact__arrow">→</span>
+                    </div>
+                    <div class="impact__after">17</div>
+                    <div class="impact__label">In the library</div>
+                </div>
+                <div class="impact__tile">
+                    <div class="impact__delta">Procedures</div>
+                    <div>
+                        <span class="impact__before">5</span>
+                        <span class="impact__arrow">→</span>
+                    </div>
+                    <div class="impact__after">21</div>
+                    <div class="impact__label">Live, approved</div>
+                </div>
+                <div class="impact__tile">
+                    <div class="impact__delta">Risk Assessments</div>
+                    <div>
+                        <span class="impact__before">0</span>
+                        <span class="impact__arrow">→</span>
+                    </div>
+                    <div class="impact__after">9</div>
+                    <div class="impact__label">144 hazards</div>
+                </div>
+                <div class="impact__tile">
+                    <div class="impact__delta">BRAGs</div>
+                    <div>
+                        <span class="impact__before">0</span>
+                        <span class="impact__arrow">→</span>
+                    </div>
+                    <div class="impact__after">9</div>
+                    <div class="impact__label">Frontline guides</div>
+                </div>
+                <div class="impact__tile">
+                    <div class="impact__delta">Registers</div>
+                    <div>
+                        <span class="impact__before">0</span>
+                        <span class="impact__arrow">→</span>
+                    </div>
+                    <div class="impact__after">10</div>
+                    <div class="impact__label">Live trackers</div>
+                </div>
+                <div class="impact__tile">
+                    <div class="impact__delta">Training courses</div>
+                    <div>
+                        <span class="impact__before">0</span>
+                        <span class="impact__arrow">→</span>
+                    </div>
+                    <div class="impact__after">21</div>
+                    <div class="impact__label">Live on LMS</div>
+                </div>
+                <div class="impact__tile">
+                    <div class="impact__delta">Documents in register</div>
+                    <div>
+                        <span class="impact__before">~30</span>
+                        <span class="impact__arrow">→</span>
+                    </div>
+                    <div class="impact__after">140+</div>
+                    <div class="impact__label">Cross-referenced</div>
+                </div>
+                <div class="impact__tile">
+                    <div class="impact__delta">Findings &amp; OFIs</div>
+                    <div>
+                        <span class="impact__before">0 / 15</span>
+                        <span class="impact__arrow">→</span>
+                    </div>
+                    <div class="impact__after">14 / 15</div>
+                    <div class="impact__label">Closed with evidence</div>
+                </div>
+            </div>
+
+            <!-- FINDINGS CLOSURE -->
+            <div class="cl-sec-heading">
+                <div class="cl-sec-heading__eyebrow">Section One · Findings closure</div>
+                <h2 class="cl-sec-heading__title">The seven findings, answered</h2>
+                <p class="cl-sec-heading__lead">
+                    For each finding: what Shell asked for, what we built, and where the evidence
+                    lives. Document references follow the integrated management system's
+                    SM/[System]/[Type]/[Seq] format.
+                </p>
+            </div>
+
+            <!-- Finding 1 closure -->
+            <div class="closure-card closure-card--external">
+                <div class="closure-card__head">
+                    <div class="closure-card__num">01</div>
+                    <div class="closure-card__head-text">
+                        <div class="closure-card__ref">Finding F1 · NCR-001</div>
+                        <h3 class="closure-card__title">License to Operate — Malta exemption</h3>
+                        <p class="closure-card__ask">
+                            <strong>Shell asked for:</strong> written confirmation from a competent
+                            Maltese government body specifying the company's exemption status from
+                            S.L. 480.05 and the Arms Act.
+                        </p>
+                        <span class="closure-card__stamp">External · In escalation</span>
+                    </div>
+                </div>
+                <div class="closure-card__body">
+                    <div class="closure-card__built-label">What we've done · where it sits</div>
+                    <ul class="closure-card__built">
+                        <li>Formal request lodged with the Malta Security Service via company secretary</li>
+                        <li>Chaser correspondence issued through legal counsel</li>
+                        <li>Escalation email sent to ownership routing 9 April 2026</li>
+                        <li>Placeholder entry maintained on the DD portal pending letter receipt</li>
+                        <li>NCR-001 retained as open on the register for full transparency</li>
+                        <li>Target: letter received and filed before 3 May close-out</li>
+                    </ul>
+                    <p class="closure-card__summary">
+                        The one finding that sits outside Seagull's direct control. The Malta
+                        authority is the single point of dependency. Every other action within
+                        Seagull's control has been taken and the escalation remains live.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Finding 2 closure -->
+            <div class="closure-card">
+                <div class="closure-card__head">
+                    <div class="closure-card__num">02</div>
+                    <div class="closure-card__head-text">
+                        <div class="closure-card__ref">Finding F2 · NCR-002</div>
+                        <h3 class="closure-card__title">Risk Management System</h3>
+                        <p class="closure-card__ask">
+                            <strong>Shell asked for:</strong> a unified organisation-wide risk
+                            management framework covering WAF and IOR, integrating HSSE, documented
+                            in SOPs, ISO 45001-aligned.
+                        </p>
+                        <span class="closure-card__stamp">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="closure-card__body">
+                    <div class="closure-card__built-label">What we built · document refs</div>
+                    <ul class="closure-card__built">
+                        <li><code>SM/HSE/PRO/001</code> Hazard ID &amp; Risk Assessment Procedure</li>
+                        <li><code>SM/SEC/PRO/001</code> Security &amp; Business Risk Assessment Procedure</li>
+                        <li><code>SM/HSE/RA/002–010</code> Nine H&amp;S Risk Assessments (144 hazards)</li>
+                        <li><code>SM/CAM/BRAG/001–009</code> Nine Basic Risk Assessment Guides</li>
+                        <li><code>SM/INT/DOC/003</code> Risk Screening Tool — interactive gateway</li>
+                        <li>Full ISO 45001 policy suite and management system integration</li>
+                        <li>Libero ISO 45001 Stage 2 on-site audit confirmed for 21 April 2026</li>
+                        <li>Cross-theatre coverage — IOR, WAF, office, operational</li>
+                    </ul>
+                    <p class="closure-card__summary">
+                        This was the rebuild. <em>Nine H&amp;S risk assessments, nine BRAGs, two
+                        risk procedures, the Risk Screening Tool, and ISO 45001 as the backbone of
+                        the management system</em> — all delivered inside nine weeks. The framework
+                        is live across every operational theatre and every Seagull entity.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Finding 3 closure -->
+            <div class="closure-card">
+                <div class="closure-card__head">
+                    <div class="closure-card__num">03</div>
+                    <div class="closure-card__head-text">
+                        <div class="closure-card__ref">Finding F3 · NCR-003</div>
+                        <h3 class="closure-card__title">Media &amp; Social Media Policy</h3>
+                        <p class="closure-card__ask">
+                            <strong>Shell asked for:</strong> a formal media and social media policy
+                            covering office and operational staff, communicated company-wide and
+                            reinforced through training.
+                        </p>
+                        <span class="closure-card__stamp">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="closure-card__body">
+                    <div class="closure-card__built-label">What we built · document refs</div>
+                    <ul class="closure-card__built">
+                        <li><code>SM/INT/POL/008</code> Social Media Policy v1.0</li>
+                        <li>CEO &amp; Group Compliance Director signed approval</li>
+                        <li>VPSHR, ICoCA and Montreux references integrated</li>
+                        <li>Published to the DD Portal policy library</li>
+                        <li>LMS course <code>C16</code> — Social Media Policy Awareness (live)</li>
+                        <li>Onboarding incorporation via <code>SM/INT/FORM/002</code> New Starter Checklist</li>
+                    </ul>
+                    <p class="closure-card__summary">
+                        Closed with both the policy document and the delivery mechanism — the
+                        policy itself plus an LMS course assigned as mandatory training across
+                        office and operational staff.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Finding 4 closure -->
+            <div class="closure-card">
+                <div class="closure-card__head">
+                    <div class="closure-card__num">04</div>
+                    <div class="closure-card__head-text">
+                        <div class="closure-card__ref">Finding F4 · NCR-004</div>
+                        <h3 class="closure-card__title">Personal Insurance — Correct Legal Entity</h3>
+                        <p class="closure-card__ask">
+                            <strong>Shell asked for:</strong> all personal insurance documentation
+                            updated to reflect the correct legal entity (Seagull Malta) and
+                            communicated accordingly.
+                        </p>
+                        <span class="closure-card__stamp">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="closure-card__body">
+                    <div class="closure-card__built-label">What we built · evidence</div>
+                    <ul class="closure-card__built">
+                        <li>Request issued to underwriters — 20 January 2026</li>
+                        <li>Corrected personal insurance policy received — Seagull Malta entity</li>
+                        <li>Evidence provided to Shell — 6 February 2026</li>
+                        <li>DD Portal Company Structure folder updated</li>
+                        <li>Internal document register updated with corrected policy reference</li>
+                    </ul>
+                    <p class="closure-card__summary">
+                        First finding closed. Straight administrative correction, evidenced and
+                        lodged within two weeks of the draft report landing.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Finding 5 closure -->
+            <div class="closure-card">
+                <div class="closure-card__head">
+                    <div class="closure-card__num">05</div>
+                    <div class="closure-card__head-text">
+                        <div class="closure-card__ref">Finding F5 · NCR-005</div>
+                        <h3 class="closure-card__title">Nigerian Navy MOU</h3>
+                        <p class="closure-card__ask">
+                            <strong>Shell asked for:</strong> a formalised and validated MOU with
+                            the Nigerian Navy authorising maritime security operations in Nigerian
+                            waters.
+                        </p>
+                        <span class="closure-card__stamp">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="closure-card__body">
+                    <div class="closure-card__built-label">What we built · evidence</div>
+                    <ul class="closure-card__built">
+                        <li>Endorsed Nigerian Navy MOU — July 2025 edition obtained and filed</li>
+                        <li>Full executive summary and scope note prepared</li>
+                        <li>MOU provided to Shell — 6 February 2026</li>
+                        <li>Added to the WAF DD Portal (Section C · Host Nation Force)</li>
+                        <li>WAF operations team training review against MOU requirements</li>
+                        <li>Ongoing MOU-specific training component tracked on the CWP</li>
+                    </ul>
+                    <p class="closure-card__summary">
+                        The MOU underpins Seagull's legitimacy for armed operations in Nigerian
+                        waters. Closed with the document itself, the training review, and the
+                        operational readout into WAF ops.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Finding 6 closure -->
+            <div class="closure-card">
+                <div class="closure-card__head">
+                    <div class="closure-card__num">06</div>
+                    <div class="closure-card__head-text">
+                        <div class="closure-card__ref">Finding F6 · NCR-006</div>
+                        <h3 class="closure-card__title">VPSHR Adoption</h3>
+                        <p class="closure-card__ask">
+                            <strong>Shell asked for:</strong> VPSHR explicitly incorporated into
+                            procedures, training materials and use-of-force guidelines, with
+                            awareness sessions across office and deployed personnel.
+                        </p>
+                        <span class="closure-card__stamp">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="closure-card__body">
+                    <div class="closure-card__built-label">What we built · document refs</div>
+                    <ul class="closure-card__built">
+                        <li>VPSHR integration across the policy library — 17 policies touched</li>
+                        <li><code>SM/OPS/PRO/001</code> Rules on the Use of Force — VPSHR inserted (Section 4 + abbreviations)</li>
+                        <li><code>SM/OPS/SOP/001</code> IOR SOP and Annexes A–H — VPSHR referenced</li>
+                        <li><code>SM/TRG/DOC/001</code> Human Rights PCASP Training (28 slides, UDHR / VPSHR / ICoCA)</li>
+                        <li><code>SM/TRG/DOC/002</code> Human Rights Staff &amp; Management Training (28 slides)</li>
+                        <li><code>SM/INT/POL/002</code> Code of Conduct — VPSHR &amp; ICoCA aligned</li>
+                        <li><code>SM/CAM/BUL/001</code> awareness bulletin deployed via campaign portal</li>
+                        <li>LMS courses covering both PCASP and shore-side audiences (live)</li>
+                    </ul>
+                    <p class="closure-card__summary">
+                        VPSHR is now woven through <em>the policy library, the RUF, the SOPs, the
+                        training platform and the campaign</em>. Not a reference — an integration.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Finding 7 closure -->
+            <div class="closure-card">
+                <div class="closure-card__head">
+                    <div class="closure-card__num">07</div>
+                    <div class="closure-card__head-text">
+                        <div class="closure-card__ref">Finding F7 · NCR-007</div>
+                        <h3 class="closure-card__title">IRT Exercise — Completion &amp; Documentation</h3>
+                        <p class="closure-card__ask">
+                            <strong>Shell asked for:</strong> a full IRT exercise with realistic
+                            operational scenario, documented with objectives, lessons learned and
+                            corrective actions, integrated back into the Incident Response Plan.
+                        </p>
+                        <span class="closure-card__stamp">Closed · Evidence complete</span>
+                    </div>
+                </div>
+                <div class="closure-card__body">
+                    <div class="closure-card__built-label">What we built · document refs</div>
+                    <ul class="closure-card__built">
+                        <li><code>SM/HSE/RPT/001</code> IRT Exercise Report — Office Fire</li>
+                        <li>Seven participants · Piraeus office fire scenario</li>
+                        <li>Conducted 27 March 2026 · full after-action review</li>
+                        <li>Four follow-up OFIs logged (OFI-013 to OFI-016) on NCR register</li>
+                        <li><code>SM/INT/PRO/006</code> Incident &amp; Crisis Management Plan — cross-referenced</li>
+                        <li><code>SM/INT/PRO/016</code> Emergency Preparedness &amp; Response Procedure</li>
+                        <li>New folder: <code>07 · Audit and Review / Exercises and Drills</code> established</li>
+                    </ul>
+                    <p class="closure-card__summary">
+                        A tabletop exercise with genuine friction, honestly reported. The mistakes
+                        in the report are real mistakes, because a polished exercise wouldn't have
+                        earned the OFIs that came out of it. Those OFIs are now tracked separately
+                        and working toward closure ahead of 3 May.
+                    </p>
+                </div>
+            </div>
+
+            <!-- OFI CLOSURE -->
+            <div class="cl-sec-heading" style="margin-top: 3rem;">
+                <div class="cl-sec-heading__eyebrow">Section Two · OFI closure</div>
+                <h2 class="cl-sec-heading__title">The eight OFIs, answered</h2>
+                <p class="cl-sec-heading__lead">
+                    Compact format for the lighter-touch items — one row per OFI with the deliverable
+                    and document reference.
+                </p>
+            </div>
+
+            <div class="ofi-table">
+                <div class="ofi-row">
+                    <div class="ofi-row__num">01</div>
+                    <div>
+                        <p class="ofi-row__title">Formal Management of Change process</p>
+                    </div>
+                    <div class="ofi-row__built">
+                        Full MoC suite built S33: <code>SM/INT/PRO/013</code> procedure,
+                        <code>SM/INT/FORM/003</code> Word form, <code>SM/INT/REG/009</code>
+                        register, online Change Request form at
+                        <code>campaign/tools/change-request.html</code>
+                    </div>
+                    <div class="ofi-row__stamp">Closed</div>
+                </div>
+
+                <div class="ofi-row">
+                    <div class="ofi-row__num">02</div>
+                    <div>
+                        <p class="ofi-row__title">Structured annual Management Review cycle</p>
+                    </div>
+                    <div class="ofi-row__built">
+                        <code>SM/INT/PRO/019</code> Management Review Procedure built S34.
+                        <code>SM/INT/MRM-001 v1.1</code> first formal MR minutes —
+                        ISO 45001 scope setting
+                    </div>
+                    <div class="ofi-row__stamp">Closed</div>
+                </div>
+
+                <div class="ofi-row">
+                    <div class="ofi-row__num">03</div>
+                    <div>
+                        <p class="ofi-row__title">Sanctions listings in compliance workflows</p>
+                    </div>
+                    <div class="ofi-row__built">
+                        OFAC / UK FCDO / EU FSF screening live (30 000+ entries).
+                        <code>SM/INT/REG/007</code> External Standards register updated.
+                        Code of Conduct, Risk Screening Tool, Sanctions Screener all aligned
+                    </div>
+                    <div class="ofi-row__stamp">Closed</div>
+                </div>
+
+                <div class="ofi-row">
+                    <div class="ofi-row__num">04</div>
+                    <div>
+                        <p class="ofi-row__title">Vessel delay wording — safety reasons</p>
+                    </div>
+                    <div class="ofi-row__built">
+                        <code>SM/OPS/SOP/001</code> IOR SOP — Annex A &amp; H amended 26 Jan to
+                        clarify legitimate safety-led delays (weather during transfer,
+                        operational risk)
+                    </div>
+                    <div class="ofi-row__stamp">Closed</div>
+                </div>
+
+                <div class="ofi-row">
+                    <div class="ofi-row__num">05</div>
+                    <div>
+                        <p class="ofi-row__title">UKMTO as primary vessel defence contact</p>
+                    </div>
+                    <div class="ofi-row__built">
+                        <code>SM/OPS/SOP/001</code> annexes updated — UKMTO designated as primary
+                        incident reporting pathway. Cross-referenced in training course
+                        <code>C09</code> Incident Reporting
+                    </div>
+                    <div class="ofi-row__stamp">Closed</div>
+                </div>
+
+                <div class="ofi-row">
+                    <div class="ofi-row__num">06</div>
+                    <div>
+                        <p class="ofi-row__title">Minimum standards for Security Escort Vessels</p>
+                    </div>
+                    <div class="ofi-row__built">
+                        <code>SM/OPS/SOP/002</code> WAF SEV Operations SOP + Annex A (MSLO).
+                        <code>SM/SEC/FORM/003</code> SEV Vessel Information Form (39 vessel doc
+                        items). <code>SM/SEC/PRO/004</code> and <code>005</code> SEV approval
+                        procedures refreshed
+                    </div>
+                    <div class="ofi-row__stamp">Closed</div>
+                </div>
+
+                <div class="ofi-row">
+                    <div class="ofi-row__num">07</div>
+                    <div>
+                        <p class="ofi-row__title">Drugs &amp; Alcohol policy applicability</p>
+                    </div>
+                    <div class="ofi-row__built">
+                        <code>SM/INT/POL/010</code> Drugs &amp; Alcohol Policy v1.0 and
+                        <code>SM/INT/PRO/021</code> D&amp;A Testing Procedure — applicability
+                        clarified across PCASP, office and WAF operational staff
+                    </div>
+                    <div class="ofi-row__stamp">Closed</div>
+                </div>
+
+                <div class="ofi-row">
+                    <div class="ofi-row__num">08</div>
+                    <div>
+                        <p class="ofi-row__title">Formal PCASP security briefing to Master</p>
+                    </div>
+                    <div class="ofi-row__built">
+                        Master briefing deck finalised and referenced in SOP annexes. Issued to
+                        HR / Training and Ops for TL distribution via
+                        <code>IOR/Briefings/For Distribution</code>
+                    </div>
+                    <div class="ofi-row__stamp">Closed</div>
+                </div>
+            </div>
+
+            <!-- Beyond the findings -->
+            <aside class="beyond">
+                <div class="beyond__label">Beyond the Findings</div>
+                <h2 class="beyond__title">Not Shell findings, but what we wanted to do to continually improve alongside you</h2>
+                <p class="beyond__body">
+                    A finding-by-finding response would have been the minimum ask. What Seagull
+                    chose instead was a <em>whole-system rebuild</em> — ISO 45001 as the backbone,
+                    the findings overlaid, and every supporting piece the audit team hinted at (or
+                    would reasonably want to see) brought into existence alongside the formal
+                    close-out deliverables. The list below is what that looked like in practice.
+                </p>
+                <ul class="beyond__grid">
+                    <li>ISO 45001 full integration</li>
+                    <li>NCR / OFI / CAPA register</li>
+                    <li>Document Register (140+ refs)</li>
+                    <li>Reconciliation Matrix</li>
+                    <li>Combined Work Programme</li>
+                    <li>Company Objectives Register</li>
+                    <li>Interested Parties Register</li>
+                    <li>Context of the Organisation</li>
+                    <li>Legal &amp; Regulatory Register</li>
+                    <li>Flag State Register (37 flags)</li>
+                    <li>External Standards Register</li>
+                    <li>Training &amp; Competence Matrix</li>
+                    <li>Supplier &amp; Subcontractor Register</li>
+                    <li>20+ training courses on LMS</li>
+                    <li>Emergent HSE reporting app (live)</li>
+                    <li>"Your Watch. Our Standard." campaign portal</li>
+                    <li>Risk Screening Tool (live)</li>
+                    <li>DD portals — IOR, WAF &amp; Shell-specific</li>
+                    <li>12 TL operational forms (IOR)</li>
+                    <li>Annual Management Review completed</li>
+                    <li>ISO 45001 Stage 2 audit booked · 21 Apr</li>
+                    <li>Full integrated management system</li>
+                </ul>
+            </aside>
+
+            <!-- Close-out day card -->
+            <div class="closeout-day">
+                <div class="closeout-day__label">3 May 2026 · Close-out</div>
+                <h2 class="closeout-day__title">What the close-out visit looks like from here</h2>
+                <p class="closeout-day__body">
+                    Andy, Dennis and Neil reconnect with Seagull on 3 May. Every finding walked
+                    through against its evidence. Every OFI cross-referenced to its document. The
+                    Combined Work Programme open on screen, the Document Register searchable, the
+                    LMS live, the HSE app reporting, and Libero's ISO 45001 Stage 2 result
+                    (21 April) already on the table. <em>The audit closed formally on 19 February —
+                    that was the day the starting whistle blew. This is the day we show what was
+                    done with the months that followed.</em>
+                </p>
+            </div>
+
+            <!-- Chapter nav footer -->
+            <nav class="chapter-nav" aria-label="Chapter navigation">
+                <a href="findings.html" class="chapter-nav__link chapter-nav__link--prev">
+                    <div style="font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">← Chapter 04</div>
+                    <div style="font-family: var(--font-display); font-weight: 700; color: #fff;">Findings</div>
+                </a>
+                <a href="cwp.html" class="chapter-nav__link chapter-nav__link--next">
+                    <div style="font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Chapter 06 →</div>
+                    <div style="font-family: var(--font-display); font-weight: 700; color: #fff;">Programme</div>
+                </a>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__mark">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </div>
+            <div class="site-footer__tag">
+                Your Watch.
+                <strong>Our Standard.</strong>
+            </div>
+            <div class="site-footer__meta">
+                Confidential · Prepared for Shell Maritime Security Team · 2026
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

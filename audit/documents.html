@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>07 · Documents · The Shell Audit · Seagull Maritime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/shell.css">
+    <style>
+        /* Chapter-07 styles */
+        .dc-lede { max-width: 780px; margin: 0 auto 2.5rem; }
+        .dc-lede p { color: var(--text-muted); font-size: 1.02rem; line-height: 1.72; margin: 0 0 1.1rem; }
+        .dc-lede p em { color: #fff; font-style: normal; font-weight: 600; }
+
+        /* Stat strip */
+        .dc-stats {
+            max-width: 1100px;
+            margin: 0 auto 3rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 0.85rem;
+        }
+        .dc-stat {
+            padding: 1.3rem 1.2rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .dc-stat::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 3px; height: 100%;
+            background: linear-gradient(180deg, var(--shell-red), var(--shell-yellow));
+        }
+        .dc-stat__num {
+            font-family: var(--font-display);
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
+        .dc-stat__label {
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            line-height: 1.4;
+        }
+
+        /* Live register download panel */
+        .dc-dl {
+            max-width: 1100px;
+            margin: 0 auto 3rem;
+            padding: 1.6rem 1.9rem;
+            border: 1px solid rgba(251,206,7,0.4);
+            background:
+                linear-gradient(135deg, rgba(221,29,33,0.12), rgba(251,206,7,0.08)),
+                var(--surface);
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .dc-dl::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: linear-gradient(180deg, var(--shell-red), var(--shell-yellow));
+        }
+        .dc-dl__label {
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.45rem;
+        }
+        .dc-dl__title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.4rem;
+            line-height: 1.3;
+        }
+        .dc-dl__sub {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+        .dc-dl__btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.95rem 1.6rem;
+            background: var(--shell-yellow);
+            color: #0A0A0A;
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            border-radius: 6px;
+            border: 2px solid var(--shell-yellow);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .dc-dl__btn:hover { background: transparent; color: var(--shell-yellow); }
+        .dc-dl__btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+        @media (max-width: 680px) {
+            .dc-dl { grid-template-columns: 1fr; }
+            .dc-dl__btn { justify-self: start; }
+        }
+
+        /* Filter bar */
+        .dc-tools {
+            max-width: 1100px;
+            margin: 0 auto 1.25rem;
+        }
+        .dc-search {
+            width: 100%;
+            padding: 0.95rem 1.15rem 0.95rem 2.8rem;
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
+            background-repeat: no-repeat;
+            background-position: 0.9rem center;
+            background-size: 18px;
+        }
+        .dc-search:focus { outline: none; border-color: var(--shell-yellow); }
+        .dc-search::placeholder { color: var(--text-muted); }
+
+        .dc-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 0.6rem;
+        }
+        .dc-filter {
+            padding: 0.48rem 0.95rem;
+            background: transparent;
+            border: 1px solid var(--surface-border);
+            border-radius: 30px;
+            color: var(--text-muted);
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .dc-filter:hover { color: #fff; border-color: rgba(251,206,7,0.4); }
+        .dc-filter--active {
+            background: var(--shell-yellow);
+            border-color: var(--shell-yellow);
+            color: #0A0A0A;
+        }
+        .dc-filter-row-label {
+            font-family: var(--font-display);
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin: 0.9rem 0 0.4rem;
+        }
+
+        /* Results count */
+        .dc-count {
+            max-width: 1100px;
+            margin: 0 auto 0.8rem;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .dc-count strong { color: var(--shell-yellow); }
+
+        /* Table */
+        .dc-table-wrap {
+            max-width: 1100px;
+            margin: 0 auto 2.5rem;
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .dc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .dc-table thead th {
+            background: rgba(0,0,0,0.35);
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-align: left;
+            padding: 1rem 1.1rem;
+            border-bottom: 1px solid var(--surface-border);
+            white-space: nowrap;
+        }
+        .dc-table tbody td {
+            padding: 0.85rem 1.1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: middle;
+            color: #d6d6d6;
+        }
+        .dc-table tbody tr:last-child td { border-bottom: none; }
+        .dc-table tbody tr:hover { background: rgba(251,206,7,0.03); }
+
+        .dc-ref {
+            font-family: 'Courier New', monospace;
+            font-size: 0.78rem;
+            color: var(--shell-yellow);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .dc-title {
+            font-family: 'Open Sans', sans-serif;
+            color: #fff;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+        .dc-sys {
+            display: inline-block;
+            padding: 0.22rem 0.55rem;
+            font-family: var(--font-display);
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+        .sys-HSE { background: rgba(72,187,120,0.13); color: #6ee7a7; border: 1px solid rgba(72,187,120,0.3); }
+        .sys-SEC { background: rgba(221,29,33,0.13); color: #ff6b6f; border: 1px solid rgba(221,29,33,0.3); }
+        .sys-QMS { background: rgba(66,136,255,0.13); color: #7fb0ff; border: 1px solid rgba(66,136,255,0.3); }
+        .sys-INT { background: rgba(251,206,7,0.13); color: var(--shell-yellow); border: 1px solid rgba(251,206,7,0.3); }
+        .sys-OPS { background: rgba(180,130,255,0.13); color: #c4a3ff; border: 1px solid rgba(180,130,255,0.3); }
+        .sys-OFF { background: rgba(255,150,80,0.13); color: #ffb070; border: 1px solid rgba(255,150,80,0.3); }
+        .sys-CAM { background: rgba(255,100,180,0.13); color: #ff90c0; border: 1px solid rgba(255,100,180,0.3); }
+        .sys-TRG { background: rgba(100,220,220,0.13); color: #80e0e0; border: 1px solid rgba(100,220,220,0.3); }
+
+        .dc-cat {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .dc-ver {
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .dc-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.38rem 0.75rem;
+            background: rgba(251,206,7,0.1);
+            border: 1px solid rgba(251,206,7,0.35);
+            border-radius: 4px;
+            color: var(--shell-yellow);
+            font-family: var(--font-display);
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .dc-link:hover { background: var(--shell-yellow); color: #0A0A0A; }
+        .dc-link svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.8; }
+        .dc-nolink {
+            font-family: var(--font-display);
+            font-size: 0.64rem;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .dc-empty {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+
+        /* Final close */
+        .dc-close {
+            max-width: 1100px;
+            margin: 2.5rem auto 0;
+            padding: 2rem 2.2rem;
+            border: 1px solid rgba(251,206,7,0.35);
+            background: linear-gradient(135deg, rgba(221,29,33,0.08), rgba(251,206,7,0.06));
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        .dc-close::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--shell-red) 30%, var(--shell-yellow) 70%, transparent);
+        }
+        .dc-close__label {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--shell-red);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 0.8rem;
+        }
+        .dc-close__title {
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 1rem;
+            line-height: 1.3;
+        }
+        .dc-close__body {
+            color: var(--text-muted);
+            font-size: 0.98rem;
+            line-height: 1.72;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        .dc-close__body em { color: #fff; font-style: normal; font-weight: 600; }
+
+        @media (max-width: 760px) {
+            .dc-table thead th:nth-child(4),
+            .dc-table tbody td:nth-child(4),
+            .dc-table thead th:nth-child(5),
+            .dc-table tbody td:nth-child(5) { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Gate enforcement -->
+    <script src="../assets/js/gate.js"></script>
+    <script>window.ShellGate && window.ShellGate.enforce();</script>
+
+    <!-- Main header -->
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="../index.html" class="site-header__logo" aria-label="Seagull Maritime">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </a>
+            <div class="site-header__prepared-for">
+                <img src="../assets/img/shell-pecten.png" alt="Shell" class="shell-pecten-mini">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sticky sub-nav -->
+    <nav class="sub-nav" aria-label="Audit journey navigation">
+        <div class="sub-nav__inner">
+            <a href="index.html" class="sub-nav__back">Back to Audit</a>
+            <div class="sub-nav__dots">
+                <a href="timeline.html"            class="sub-nav__dot" data-label="01 · Timeline"></a>
+                <a href="original-submission.html" class="sub-nav__dot" data-label="02 · Submission"></a>
+                <a href="on-site.html"             class="sub-nav__dot" data-label="03 · On-Site"></a>
+                <a href="findings.html"            class="sub-nav__dot" data-label="04 · Findings"></a>
+                <a href="closure.html"             class="sub-nav__dot" data-label="05 · Closure"></a>
+                <a href="cwp.html"                 class="sub-nav__dot" data-label="06 · Programme"></a>
+                <a href="documents.html"           class="sub-nav__dot sub-nav__dot--current" data-label="07 · Documents"></a>
+            </div>
+            <a href="index.html" class="sub-nav__next">← Back to Audit</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="../index.html">Portal</a>
+        <span class="breadcrumb__sep">›</span>
+        <a href="index.html">The Shell Audit</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">07 · Documents</span>
+    </div>
+
+    <!-- Sub-hero -->
+    <section class="sub-hero">
+        <div class="sub-hero__waves"></div>
+        <div class="container">
+            <div class="sub-hero__inner">
+                <div class="sub-hero__chapter">
+                    <span class="sub-hero__chapter-num">07</span>
+                    <span>Chapter Seven</span>
+                </div>
+                <h1 class="sub-hero__title">The Documents.</h1>
+                <p class="sub-hero__tagline">
+                    The full Seagull Maritime document register — every policy, procedure, SOP,
+                    risk assessment, register, form and report that sits inside the integrated
+                    management system. Searchable. Filterable. Seventy-two items are live to download
+                    right here on the portal — every approved policy, procedure, SOP, annex,
+                    risk assessment and BRAG. The rest are available on request.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="dc-lede">
+                <p>
+                    Every document Seagull produces now lives in a single integrated management
+                    system, indexed under a standard reference scheme — <em>SM/[System]/[Type]/[Seq]</em>.
+                    The <em>System</em> code isn't a separate management system — it's one of eight
+                    document category codes that sit inside the one integrated MS, telling you which
+                    discipline owns the document (HSE, SEC, QMS, INT, OPS, CAM, TRG, OFF). Type codes
+                    tell you what kind of document it is (POL, PRO, SOP, RA, REG, FORM, RPT, DOC and
+                    so on). Sequence numbers are flat inside each system and run chronologically.
+                </p>
+                <p>
+                    The register below is rendered live from <em>SM/INT/REG/001 v2.0</em>. Use the
+                    search bar to hunt by title or reference. Use the system and category filters
+                    to narrow it down. Documents with a yellow <em>Open</em> button next to them
+                    are hosted directly on this portal — click to download. The rest are available
+                    on request through Darren as Group Compliance Director.
+                </p>
+                <p>
+                    Our live registers (NCRs, Reconciliation Matrix, Objectives, Training Matrix,
+                    Legal Register, Interested Parties, Change Requests, Work Programme) are
+                    deliberately <em>not</em> linked here — they're working documents that move daily,
+                    and we'd rather not pin a snapshot that could be a week stale by the time you
+                    open it. Every one of them is available on request or during the audit itself,
+                    walked through by the owner.
+                </p>
+            </div>
+
+            <!-- Live register download -->
+            <div class="dc-dl">
+                <div>
+                    <div class="dc-dl__label">The register itself</div>
+                    <h3 class="dc-dl__title">Open the live Document Register</h3>
+                    <p class="dc-dl__sub">
+                        SM/INT/REG/001 v2.0 — the spreadsheet the data on this page is rendered
+                        from. Eight tabs (policies, procedures, RAs, registers, reports, forms,
+                        HR, general), plus dashboard, legacy mapping and sequence tracker.
+                    </p>
+                </div>
+                <a href="../docs/SM-INT-REG-001-Document-Register.xlsx" class="dc-dl__btn" download>
+                    <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+                    Download Register (.xlsx)
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="dc-stats">
+                <div class="dc-stat">
+                    <div class="dc-stat__num">148</div>
+                    <div class="dc-stat__label">Documents in register</div>
+                </div>
+                <div class="dc-stat">
+                    <div class="dc-stat__num">8</div>
+                    <div class="dc-stat__label">Document system codes</div>
+                </div>
+                <div class="dc-stat">
+                    <div class="dc-stat__num">72</div>
+                    <div class="dc-stat__label">Live on this portal</div>
+                </div>
+                <div class="dc-stat">
+                    <div class="dc-stat__num">139</div>
+                    <div class="dc-stat__label">Approved · 1 draft</div>
+                </div>
+            </div>
+
+            <!-- Tools -->
+            <div class="dc-tools">
+                <input type="text" class="dc-search" id="dcSearch" placeholder="Search by reference or title (e.g. 'MoC', 'risk', 'SM/HSE/PRO')">
+
+                <div class="dc-filter-row-label">Filter by system</div>
+                <div class="dc-filters" id="dcSysFilters">
+                    <button class="dc-filter dc-filter--active" data-sys="ALL">All systems</button>
+                    <button class="dc-filter" data-sys="INT">INT · Integrated</button>
+                    <button class="dc-filter" data-sys="HSE">HSE · Health &amp; Safety</button>
+                    <button class="dc-filter" data-sys="SEC">SEC · Security</button>
+                    <button class="dc-filter" data-sys="OPS">OPS · Operational</button>
+                    <button class="dc-filter" data-sys="CAM">CAM · Campaign</button>
+                    <button class="dc-filter" data-sys="QMS">QMS · Quality</button>
+                    <button class="dc-filter" data-sys="TRG">TRG · Training</button>
+                    <button class="dc-filter" data-sys="OFF">OFF · Offshore</button>
+                </div>
+
+                <div class="dc-filter-row-label">Filter by category</div>
+                <div class="dc-filters" id="dcCatFilters">
+                    <button class="dc-filter dc-filter--active" data-cat="ALL">All categories</button>
+                    <button class="dc-filter" data-cat="Policy">Policies</button>
+                    <button class="dc-filter" data-cat="Procedure / SOP">Procedures &amp; SOPs</button>
+                    <button class="dc-filter" data-cat="Risk Assessment">Risk Assessments</button>
+                    <button class="dc-filter" data-cat="Register">Registers</button>
+                    <button class="dc-filter" data-cat="Form / Template">Forms &amp; Templates</button>
+                    <button class="dc-filter" data-cat="Report">Reports</button>
+                    <button class="dc-filter" data-cat="HR / Job Description">Job Descriptions</button>
+                    <button class="dc-filter" data-cat="Reference Doc">Reference Docs</button>
+                </div>
+
+                <div class="dc-filter-row-label">Quick view</div>
+                <div class="dc-filters">
+                    <button class="dc-filter" id="dcOnlyLinked">Only show documents linked on portal</button>
+                </div>
+            </div>
+
+            <div class="dc-count" id="dcCount"></div>
+
+            <!-- Table -->
+            <div class="dc-table-wrap">
+                <table class="dc-table">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Title</th>
+                            <th>System</th>
+                            <th>Category</th>
+                            <th>Ver</th>
+                            <th style="text-align:right;">Access</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dcBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Closing block -->
+            <div class="dc-close">
+                <div class="dc-close__label">The end of the audit story</div>
+                <h2 class="dc-close__title">Every document in the system, every line of evidence, every finding closed</h2>
+                <p class="dc-close__body">
+                    This chapter is the final piece of the Shell audit journey. If there is a
+                    Seagull document referenced anywhere else in the audit — Chapter 05's finding
+                    closures, Chapter 06's programme rows, the timeline phases — it lives in the
+                    register on this page. <em>One hundred and forty-eight documents, one living
+                    system.</em> Thank you for walking through it with us.
+                </p>
+            </div>
+
+            <!-- Chapter nav footer -->
+            <nav class="chapter-nav" aria-label="Chapter navigation">
+                <a href="cwp.html" class="chapter-nav__link chapter-nav__link--prev">
+                    <span class="chapter-nav__dir">← Previous</span>
+                    <span class="chapter-nav__title">06 · Programme</span>
+                </a>
+                <a href="index.html" class="chapter-nav__link chapter-nav__link--next">
+                    <span class="chapter-nav__dir">Back to →</span>
+                    <span class="chapter-nav__title">The Shell Audit</span>
+                </a>
+            </nav>
+        </div>
+    </section>
+
+    <script>
+        const DOCS = [["SM/CAM/BRAG/001","Vessel Transfer Operations — Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001","SM-CAM-BRAG-001-Vessel-Transfer-Operations.pdf"],["SM/CAM/BRAG/002","Security Duties – Client Vessel — Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001","SM-CAM-BRAG-002-Security-Duties-Client-Vessel.pdf"],["SM/CAM/BRAG/003","Weapons Handling and Armoury Operations — Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001","SM-CAM-BRAG-003-Weapons-Handling-Armoury.pdf"],["SM/CAM/BRAG/004","RHIB and Craft Launch Operations — Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001","SM-CAM-BRAG-004-RHIB-Craft-Launch.pdf"],["SM/CAM/BRAG/005","Vessel Routine Operations — Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001","SM-CAM-BRAG-005-Vessel-Routine-Operations.pdf"],["SM/CAM/BRAG/006","Office Workplace — Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001","SM-CAM-BRAG-006-Office-Workplace.pdf"],["SM/CAM/BRAG/007","Remote Working — Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001","SM-CAM-BRAG-007-Remote-Working.pdf"],["SM/CAM/BRAG/008","Heat Stress — Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001","SM-CAM-BRAG-008-Heat-Stress.pdf"],["SM/CAM/BRAG/009","Night Operations Basic Risk Assessment Guide","CAM","Reference Doc","1.0","ISO 45001 (7.3)","SM-CAM-BRAG-009-Night-Operations.pdf"],["SM/CAM/BUL/001","Vessel Transfers — Awareness Bulletin","CAM","Reference Doc","1.0","N/A — Awareness material",""],["SM/CAM/BUL/002","Due Diligence Portal — Internal Bulletin","CAM","Reference Doc","1.0","All",""],["SM/CAM/FC/001","Vessel Transfers — Toolbox Talk Flash Cards","CAM","Reference Doc","1.0","N/A — Awareness material",""],["SM/CAM/SG/001","Vessel Transfer Operations Safety Guide","CAM","Reference Doc","1.0","45001",""],["SM/HSE/DOC/001","OH&S Management System Scope Statement","HSE","Policy","1.0","ISO 45001 (4.3)","SM-HSE-DOC-001.pdf"],["SM/HSE/POL/001","Occupational Health & Safety Policy","HSE","Policy","1.0","ISO 45001 (5.2)","SM-HSE-POL-001.pdf"],["SM/HSE/POL/002","Environmental Policy","HSE","Policy","1.0","ISO 45001","SM-HSE-POL-002.pdf"],["SM/HSE/PRO/001","Hazard Identification and Risk Assessment Procedure","HSE","Procedure / SOP","1.0","45001","SM-HSE-PRO-001.pdf"],["SM/HSE/PRO/002","Legal and Regulatory Compliance Procedure","HSE","Procedure / SOP","1.0","45001 (6.1.3 / 9.1.2)","SM-HSE-PRO-002.pdf"],["SM/HSE/PRO/003","Emergency Preparedness and Response Procedure","HSE","Procedure / SOP","1.0","45001 (8.2) / 18788 (8.3) / 28007 / 28000","SM-HSE-PRO-003.pdf"],["SM/HSE/RA/001","Vessel Evacuation and Guarding Operations H&S RA","HSE","Risk Assessment","1.0","45001",""],["SM/HSE/RA/002","Vessel Transfer Operations H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-002-Vessel-Transfer-Operations.xlsx"],["SM/HSE/RA/003","Security Duties Client Vessel H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-003-Security-Duties-Client-Vessel.xlsx"],["SM/HSE/RA/004","Weapons Handling and Armoury Operations H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-004-Weapons-Handling-Armoury.xlsx"],["SM/HSE/RA/005","RHIB and Craft Launch Operations H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-005-RHIB-Craft-Launch.xlsx"],["SM/HSE/RA/006","Vessel Routine Operations H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-006-Vessel-Routine-Operations.xlsx"],["SM/HSE/RA/007","Office Workplace H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-007-Office-Workplace.xlsx"],["SM/HSE/RA/008","Remote Working H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-008-Remote-Working.xlsx"],["SM/HSE/RA/009","Heat Stress H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-009-Heat-Stress.xlsx"],["SM/HSE/RA/010","Night Operations H&S Risk Assessment","HSE","Risk Assessment","1.0","ISO 45001 (6.1.2)","SM-HSE-RA-010-Night-Operations.xlsx"],["SM/HSE/REG/001","Interested Parties Register","HSE","Register","1.0","ISO 45001 (4.2) | ISO 18788 (4.2) | ISO 28000 (4.2) | ISO 9001 (4.2)",""],["SM/HSE/REG/002","Legal and Regulatory Requirements Register","HSE","Register","1.0","45001 (6.1.3) / 18788 / 28007 / 28000 / 9001",""],["SM/HSE/RPT/001","IRT Exercise Report - Office Fire","HSE","Report","1.0","45001 (8.2)","SM-HSE-RPT-001-IRT-Exercise-Report.docx"],["SM/INT/CMP/002","Combined Work Programme","INT","Register","2.0","All",""],["SM/INT/CPP/001","Compliance Position Paper - MV Vladimir Boarding","INT","Report","1.0","18788 / 28007",""],["SM/INT/DOC/001","Document Referencing and Folder Structure Guide","INT","Reference Doc","1.0","All",""],["SM/INT/DOC/002","Context of the Organisation (PESTLE & SWOT Analysis)","INT","Reference Doc","2.0","ISO 45001 (4.1) | ISO 18788 (4.1) | ISO 28000 (4.1) | ISO 9001 (4.1)","SM-INT-DOC-002.pdf"],["SM/INT/DOC/003","Risk Screening Tool — Concept and Design Specification","INT","Reference Doc","1.0","ISO 45001 (6.1) / ISO 18788 (6.1) / ISO 28000 (6.1)",""],["SM/INT/DOC/004","Company Profile 2026","INT","Reference Doc","1.0","All",""],["SM/INT/DOC/005","Roles, Responsibilities and Authorities Matrix (RACI)","INT","Reference Doc","1.0","45001 (5.3) / 18788 (5.3)","SM-INT-DOC-005-Roles-Responsibilities-Matrix.xlsx"],["SM/INT/DOC/006","MSO Course Program","INT","Reference Doc","1.0","28007 / 18788",""],["SM/INT/FORM/001","Non-Conformance Report Form","INT","Form / Template","1.0","9001 / 18788 / 28007 / 28000 / 45001",""],["SM/INT/FORM/002","New Starter Checklist","INT","Form / Template","1.0","9001 7.2 / 45001 7.2",""],["SM/INT/FORM/003","Change Request Form","INT","Form / Template","1.0","9001 6.3 / 45001 8.1.3 / 18788 8.1",""],["SM/INT/FORM/004","Supplier Approval Form","INT","Form / Template","1.0","45001 Cl. 8.1.4 / 9001 8.4",""],["SM/INT/FORM/005","Supplier Corrective Action Report","INT","Form / Template","1.0","45001 Cl. 8.1.4 / 9001 8.4",""],["SM/INT/FORM/006","Supplier Approval Checklist","INT","Form / Template","1.0","45001 Cl. 8.1.4 / 9001 8.4",""],["SM/INT/JD/002","Compliance Administrator Job Description","INT","HR / Job Description","1.0","All",""],["SM/INT/JD/003","QHSE Manager","INT","HR / Job Description","1.0","All",""],["SM/INT/JD/004","Group Compliance Director","INT","HR / Job Description","1.0","All",""],["SM/INT/POL/001","Anti-Bribery, Corruption and Business Ethics Policy","INT","Policy","1.0","All","SM-INT-POL-001.pdf"],["SM/INT/POL/002","Code of Conduct","INT","Policy","1.0","All","SM-INT-POL-002.pdf"],["SM/INT/POL/003","Equal Opportunities Policy","INT","Policy","1.0","All","SM-INT-POL-003.pdf"],["SM/INT/POL/004","Grievance and Whistleblowing Policy","INT","Policy","1.0","All","SM-INT-POL-004.pdf"],["SM/INT/POL/005","Personal Data Protection Policy","INT","Policy","1.0","All","SM-INT-POL-005.pdf"],["SM/INT/POL/006","Recruitment Policy","INT","Policy","1.0","All","SM-INT-POL-006.pdf"],["SM/INT/POL/007","Risk Management Policy","INT","Policy","1.0","45001 / 18788 / 28000 / 28007","SM-INT-POL-007.pdf"],["SM/INT/POL/008","Social Media Policy","INT","Policy","1.0","All","SM-INT-POL-008.pdf"],["SM/INT/POL/009","Training Policy","INT","Policy","1.0","45001 (7.2/7.3) / 18788","SM-INT-POL-009.pdf"],["SM/INT/POL/010","Drugs and Alcohol Policy","INT","Policy","1.0","45001 / 18788","SM-INT-POL-010.pdf"],["SM/INT/PRO/001","Non-Conformance, OFI and Corrective Action Management","INT","Procedure / SOP","1.0","9001 / 18788 / 28007 / 28000 / 45001","SM-INT-PRO-001.pdf"],["SM/INT/PRO/002","Control of Documents","INT","Procedure / SOP","1.0","9001 / 18788 / 28007 / 28000 / 45001","SM-INT-PRO-002.pdf"],["SM/INT/PRO/003","Internal Audit","INT","Procedure / SOP","1.0","9001 / 18788 / 28007 / 28000 / 45001 / 19011","SM-INT-PRO-003.pdf"],["SM/INT/PRO/004","External References and Standards Procedure","INT","Procedure / SOP","1.0","9001 / 18788 / 28007 / 28000 / 45001","SM-INT-PRO-004.pdf"],["SM/INT/PRO/005","Control of Records","INT","Procedure / SOP","1.0","ISO 45001 (7.5)","SM-INT-PRO-005.pdf"],["SM/INT/PRO/006","Incident and Crisis Management","INT","Procedure / SOP","1.0","45001 / 18788","SM-INT-PRO-006.pdf"],["SM/INT/PRO/007","PCASP Induction and Deployment","INT","Procedure / SOP","1.0","28007 / 18788","SM-INT-PRO-007.pdf"],["SM/INT/PRO/008","PCASP Recruitment and Screening","INT","Procedure / SOP","1.0","28007 / 18788","SM-INT-PRO-008.pdf"],["SM/INT/PRO/008-A","PCASP Recruitment and Screening (Shell Supplement)","INT","Procedure / SOP","1.0","28007 / Shell","SM-INT-PRO-008-A.pdf"],["SM/INT/PRO/009","Firearms Competency","INT","Procedure / SOP","1.0","28007 / 18788","SM-INT-PRO-009.pdf"],["SM/INT/PRO/010","Training and Competence Management Procedure","INT","Procedure / SOP","1.0","45001 Cl. 7.2 / 7.3","SM-INT-PRO-010.pdf"],["SM/INT/PRO/011","Staff Recruitment Procedure","INT","Procedure / SOP","1.0","9001 7.1.2 / 18788 7.1 / 45001 7.2","SM-INT-PRO-011.pdf"],["SM/INT/PRO/012","Staff Training and Competence Procedure","INT","Procedure / SOP","1.0","9001 7.2 / 45001 7.2-7.3 / 18788 7.2 / 28007 7.2","SM-INT-PRO-012.pdf"],["SM/INT/PRO/013","Management of Change Procedure","INT","Procedure / SOP","1.0","9001 6.3 / 45001 8.1.3 / 18788 8.1 / 28007 8.1","SM-INT-PRO-013.pdf"],["SM/INT/PRO/014","Worker Consultation and Participation Procedure","INT","Procedure / SOP","1.0","45001 (5.4) / 18788 (5.3.3)","SM-INT-PRO-014.pdf"],["SM/INT/PRO/015","Continual Improvement Procedure","INT","Procedure / SOP","1.0","45001 (10.3) / 18788 (10.2) / 9001 (10.3)","SM-INT-PRO-015.pdf"],["SM/INT/PRO/016","Internal and External Communications Procedure","INT","Procedure / SOP","1.0","45001 (7.4) / 9001 (7.4) / 18788 (7.4)","SM-INT-PRO-016.pdf"],["SM/INT/PRO/017","Supplier, Contractor and Procurement Management Procedure","INT","Procedure / SOP","1.0","45001 Cl. 8.1.4 / 9001 8.4","SM-INT-PRO-017.pdf"],["SM/INT/PRO/019","Management Review Procedure","INT","Procedure / SOP","1.0","45001 Cl. 9.3","SM-INT-PRO-019.pdf"],["SM/INT/PRO/021","Drugs and Alcohol Testing Procedure","INT","Procedure / SOP","1.0","45001 / 18788","SM-INT-PRO-021.pdf"],["SM/INT/REG/001","Document Register","INT","Register","2.0","All","SM-INT-REG-001-Document-Register.xlsx"],["SM/INT/REG/003","Internal Audit Schedule 2026","INT","Register","1.0","9001 / 19011",""],["SM/INT/REG/004","NCR, OFI and CAPA Register","INT","Register","1.0","9001 / 18788 / 28007 / 28000 / 45001",""],["SM/INT/REG/005","Reconciliation Matrix","INT","Register","1.0","All",""],["SM/INT/REG/006","Company Objectives Register","INT","Register","1.0","9001 / 18788 / 28007 / 28000 / 45001",""],["SM/INT/REG/007","External Standards and References Register","INT","Register","1.0","9001 / 18788 / 28007 / 28000 / 45001",""],["SM/INT/REG/008","Training and Competence Matrix","INT","Register","1.0","45001 (7.2/7.3) / 9001 / 18788 / 28007",""],["SM/INT/REG/009","Change Request Register","INT","Register","1.0","9001 6.3 / 45001 8.1.3 / 18788 8.1",""],["SM/INT/REG/010","Supplier and Subcontractor Register","INT","Register","1.0","45001 Cl. 8.1.4 / 9001 8.4",""],["SM/INT/RPT/001","Internal Audit Programme Review and Gap Analysis","INT","Report","1.0","All",""],["SM/INT/TPL/001","Register Template","INT","Form / Template","1.0","All",""],["SM/INT/TPL/002","Procedure Template","INT","Form / Template","1.0","All",""],["SM/SEC/PRO/006","SEV Critical Spares Risk Assessment Procedure","SEC","Procedure / SOP","1.0","ISO 18788 / 9001","SM-SEC-PRO-006.pdf"],["SM/OPS/BRI/001","Vessel Masters Briefing - IOR","OPS","Procedure / SOP","1.0","28007 / 18788 / 45001 (7.4)",""],["SM/OPS/BRI/002","Skiff Identification Guide - IOR","OPS","Procedure / SOP","1.0","28007 / 18788 / 45001 (7.4)",""],["SM/OPS/BRI/003","Skiff Identification Guide - SRS-GoA","OPS","Procedure / SOP","1.0","28007 / 18788 / 45001 (7.4)",""],["SM/OPS/FORM/001","RUF Card","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/002","Statement of Understanding (MSO)","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/003","Statement of Understanding (Master/OOW)","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/004","Release Authorisation","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/005","Incident Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/006","Daily Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/007","Embarkation Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/008","Second Day Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/009","Crossing 60°E Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/010","Port Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/011","Exit Port Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/012","48 Hours to Disembarkation Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/013","Disembarkation Report","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/FORM/014","Incident Report","OPS","Form / Template","1.0","28007 / 18788 / 45001",""],["SM/OPS/FORM/015","Embarked Training Return","OPS","Form / Template","1.0","28007 / 45001 (7.2)",""],["SM/OPS/FORM/016","First Aid Kit Check","OPS","Form / Template","1.0","45001",""],["SM/OPS/FORM/017","Vessel Details Form","OPS","Form / Template","1.0","28007 / 18788",""],["SM/OPS/PRO/001","Rules on the Use of Force","OPS","Procedure / SOP","1.0","28007 / 18788","SM-OPS-PRO-001.pdf"],["SM/OPS/SOP/001","Indian Ocean Piracy Operations SOP","OPS","Procedure / SOP","","28007 / 18788","SM-OPS-SOP-001.pdf"],["SM/OPS/SOP/001-A","IOR SOP — Annex A — Deployment and Embarkation","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/OPS/SOP/001-B","IOR SOP — Annex B — Vessel Familiarisation","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/OPS/SOP/001-C","IOR SOP — Annex C — Vessel Hardening & Mitigation Measures","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/OPS/SOP/001-D","IOR SOP — Annex D — Onboard Routines","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/OPS/SOP/001-E","IOR SOP — Annex E — Vessel Defence","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/OPS/SOP/001-F","IOR SOP — Annex F — Incident Management","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/OPS/SOP/001-G","IOR SOP — Annex G — Weapons & Equipment Management","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/OPS/SOP/001-H","IOR SOP — Annex H — Disembarkation and Post Transit","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/OPS/SOP/002","WAF SEV Operations SOP","OPS","Procedure / SOP","1.0","28007 / 18788","SM-OPS-SOP-002.pdf"],["SM/OPS/SOP/002-A","WAF SOP — Annex A — MSLO Operations","OPS","Procedure / SOP","1.0","28007 / 18788",""],["SM/QMS/POL/001","Quality Policy","QMS","Policy","1.0","ISO 9001","SM-QMS-POL-001.pdf"],["SM/QMS/POL/002","Quality Policy Statement","QMS","Policy","1.0","ISO 9001","SM-QMS-POL-002.pdf"],["SM/SEC/DOC/001","OCIMF PMSC Guidance Checklist — Completed Responses","SEC","Reference Doc","1.0","ISO 28007 (4.4.6) / ISO 18788 (A.4.3.2)",""],["SM/SEC/DOC/002","WAF OCIMF Due Diligence Checklist","SEC","Reference Doc","1.0","ISO 28007 (4.4.6) / OCIMF",""],["SM/SEC/FORM/001","Security Escort Vessel (SEV) Checklist","SEC","Form / Template","1.0","28007 / 18788 / 9001",""],["SM/SEC/FORM/002","WAF Escorting Due Diligence Checklist","SEC","Form / Template","1.0","18788 / 28007 / 9001",""],["SM/SEC/FORM/003","SEV Vessel Information Form","SEC","Form / Template","1.0","ISO 28007 / 18788",""],["SM/SEC/FORM/004","SEV Provider Due Diligence Form","SEC","Form / Template","1.0","ISO 28007 / 18788",""],["SM/SEC/POL/001","Security and Security Operations Policy","SEC","Policy","1.0","18788 / 28007 / 28000","SM-SEC-POL-001.pdf"],["SM/SEC/POL/002","Human Rights Policy","SEC","Policy","1.0","18788 / 28007","SM-SEC-POL-002.pdf"],["SM/SEC/POL/003","Statement of Conformance","SEC","Policy","1.0","18788 / 28007 / 28000","SM-SEC-POL-003.pdf"],["SM/SEC/POL/004","Security Policy Statement","SEC","Policy","1.0","18788 / 28007 / 28000","SM-SEC-POL-004.pdf"],["SM/SEC/PRO/001","Security and Business Risk Assessment Procedure","SEC","Procedure / SOP","1.0","28007 / 18788 / 28000","SM-SEC-PRO-001.pdf"],["SM/SEC/PRO/002","Due Diligence Response Procedure","SEC","Procedure / SOP","1.1","ISO 28007 (4.4.6) / ISO 18788 (A.4.3.2, A.9.3)","SM-SEC-PRO-002.pdf"],["SM/SEC/PRO/004","Security Escort Vessel Approval Procedure","SEC","Procedure / SOP","1.0","28007 / 18788 / 9001","SM-SEC-PRO-004.pdf"],["SM/SEC/PRO/005","Supplier Approval — Security Escort Vessel Providers","SEC","Procedure / SOP","1.0","18788 / 9001 / 28007 / 45001","SM-SEC-PRO-005.pdf"],["SM/SEC/RA/001","IOR Piracy Operations Security & Business RA","SEC","Risk Assessment","1.0","18788 / 28000",""],["SM/SEC/RA/002","WAF GOG Operations Security & Business RA","SEC","Risk Assessment","1.0","18788 / 28000",""],["SM/SEC/RA/003","PG Vessel Evacuation and Guarding Security & Business RA","SEC","Risk Assessment","1.0","18788 / 28000",""],["SM/SEC/REG/001","Flag State Requirements Register","SEC","Register","1.0","28007 / 18788 / 28000",""],["SM/SEC/RPT/001","Internal Audit Report - Document Control","SEC","Report","1.0","9001 / 18788",""],["SM/SEC/RPT/002","Internal Audit Report - Risk Management","SEC","Report","1.0","18788 / 28007 / 45001",""],["SM/TRG/DOC/001","Human Rights in Maritime Security Operations — PCASP Training","TRG","Reference Doc","1.0","ICoCA / VPSHR / 18788 / 28007",""],["SM/TRG/DOC/002","Human Rights in Maritime Security Operations — Staff and Management Training","TRG","Reference Doc","1.0","ICoCA / VPSHR / 18788 / 28007",""]];
+        // schema: [ref, title, system, category, version, iso, file]
+
+        const tbody = document.getElementById('dcBody');
+        const count = document.getElementById('dcCount');
+        const search = document.getElementById('dcSearch');
+        const sysFilters = document.getElementById('dcSysFilters');
+        const catFilters = document.getElementById('dcCatFilters');
+        const onlyLinked = document.getElementById('dcOnlyLinked');
+
+        let state = { sys: 'ALL', cat: 'ALL', q: '', linkedOnly: false };
+
+        function render() {
+            const q = state.q.toLowerCase().trim();
+            const filtered = DOCS.filter(d => {
+                if (state.sys !== 'ALL' && d[2] !== state.sys) return false;
+                if (state.cat !== 'ALL' && d[3] !== state.cat) return false;
+                if (state.linkedOnly && !d[6]) return false;
+                if (q && !(d[0].toLowerCase().includes(q) || d[1].toLowerCase().includes(q))) return false;
+                return true;
+            });
+
+            const linkedTotal = filtered.filter(d => d[6]).length;
+            count.innerHTML = `Showing <strong>${filtered.length}</strong> of ${DOCS.length} documents · <strong>${linkedTotal}</strong> live on this portal`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6"><div class="dc-empty">No documents match the current filters.</div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(d => {
+                const [ref, title, sys, cat, ver, iso, file] = d;
+                const access = file
+                    ? `<a class="dc-link" href="../docs/${file}" download><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>Open</a>`
+                    : '<span class="dc-nolink">On request</span>';
+                return `<tr>
+                    <td><span class="dc-ref">${ref}</span></td>
+                    <td><div class="dc-title">${escapeHtml(title)}</div></td>
+                    <td><span class="dc-sys sys-${sys}">${sys}</span></td>
+                    <td><span class="dc-cat">${cat}</span></td>
+                    <td><span class="dc-ver">${ver || '—'}</span></td>
+                    <td style="text-align:right;">${access}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        search.addEventListener('input', (e) => {
+            state.q = e.target.value;
+            render();
+        });
+
+        sysFilters.addEventListener('click', (e) => {
+            const btn = e.target.closest('.dc-filter');
+            if (!btn) return;
+            sysFilters.querySelectorAll('.dc-filter').forEach(b => b.classList.remove('dc-filter--active'));
+            btn.classList.add('dc-filter--active');
+            state.sys = btn.dataset.sys;
+            render();
+        });
+
+        catFilters.addEventListener('click', (e) => {
+            const btn = e.target.closest('.dc-filter');
+            if (!btn) return;
+            catFilters.querySelectorAll('.dc-filter').forEach(b => b.classList.remove('dc-filter--active'));
+            btn.classList.add('dc-filter--active');
+            state.cat = btn.dataset.cat;
+            render();
+        });
+
+        onlyLinked.addEventListener('click', () => {
+            state.linkedOnly = !state.linkedOnly;
+            onlyLinked.classList.toggle('dc-filter--active', state.linkedOnly);
+            render();
+        });
+
+        render();
+    </script>
+</body>
+</html>

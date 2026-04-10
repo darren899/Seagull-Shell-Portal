@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>03 · On-Site · The Shell Audit · Seagull Maritime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/shell.css">
+    <style>
+        /* Chapter-03 styles */
+        .onsite-lede { max-width: 780px; margin: 0 auto 2.5rem; }
+        .onsite-lede p { color: var(--text-muted); font-size: 1.02rem; line-height: 1.72; margin: 0 0 1.1rem; }
+        .onsite-lede p em { color: #fff; font-style: normal; font-weight: 600; }
+
+        /* Audit team cards */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            max-width: 960px;
+            margin: 0 auto 3rem;
+        }
+        .team-card {
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 1.5rem 1.5rem 1.4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--shell-red), var(--shell-yellow));
+        }
+        .team-card__role {
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 0.5rem;
+        }
+        .team-card__name {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.3rem;
+        }
+        .team-card__title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.45;
+            margin: 0 0 0.9rem;
+        }
+        .team-card__bio {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.55;
+            margin: 0;
+            padding-top: 0.8rem;
+            border-top: 1px solid var(--surface-border);
+        }
+
+        /* Two days layout */
+        .days { max-width: 960px; margin: 0 auto 3rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        @media (max-width: 720px) { .days { grid-template-columns: 1fr; } }
+        .day {
+            border: 1px solid var(--surface-border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 1.75rem 1.75rem 1.6rem;
+            position: relative;
+        }
+        .day__num {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            margin-bottom: 0.3rem;
+        }
+        .day__date {
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
+        }
+        .day__title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 0.9rem;
+            line-height: 1.25;
+        }
+        .day__body { color: var(--text-muted); font-size: 0.9rem; line-height: 1.65; margin: 0 0 0.85rem; }
+        .day__body em { color: #fff; font-style: normal; font-weight: 600; }
+        .day__topics { list-style: none; padding: 0; margin: 0.75rem 0 0; }
+        .day__topics li {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            padding: 0.25rem 0 0.25rem 1rem;
+            position: relative;
+            line-height: 1.5;
+        }
+        .day__topics li::before { content: '›'; position: absolute; left: 0; color: var(--shell-red); font-weight: 700; }
+
+        /* Observations blocks */
+        .obs-block {
+            max-width: 880px;
+            margin: 0 auto 1.5rem;
+            padding: 1.75rem 2rem;
+            border-radius: 10px;
+            border: 1px solid;
+        }
+        .obs-block--positive {
+            border-color: rgba(251, 206, 7, 0.28);
+            background: linear-gradient(135deg, rgba(251, 206, 7, 0.06) 0%, rgba(10, 10, 10, 0.4) 100%);
+        }
+        .obs-block--improve {
+            border-color: rgba(221, 29, 33, 0.28);
+            background: linear-gradient(135deg, rgba(221, 29, 33, 0.06) 0%, rgba(10, 10, 10, 0.4) 100%);
+        }
+        .obs-block--valueadd {
+            border-color: var(--surface-border);
+            background: var(--surface);
+        }
+        .obs-block__label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.4rem;
+        }
+        .obs-block--positive .obs-block__label { color: var(--shell-yellow); }
+        .obs-block--improve  .obs-block__label { color: var(--shell-red); }
+        .obs-block--valueadd .obs-block__label { color: var(--text-muted); }
+        .obs-block__title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 0.6rem;
+        }
+        .obs-block__intro {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.6;
+            margin: 0 0 1rem;
+            max-width: 640px;
+        }
+        .obs-block ul {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0 0;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.55rem 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .obs-block ul { grid-template-columns: 1fr 1fr; }
+            .obs-block--positive ul { grid-template-columns: 1fr; max-width: 720px; }
+        }
+        .obs-block li {
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 0.9rem;
+            line-height: 1.55;
+            padding-left: 1.6rem;
+            position: relative;
+        }
+        .obs-block--positive li::before {
+            content: '✓';
+            position: absolute;
+            left: 0; top: 0;
+            color: var(--shell-yellow);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .obs-block--improve li::before {
+            content: '●';
+            position: absolute;
+            left: 0; top: -1px;
+            color: var(--shell-red);
+            font-weight: 700;
+            font-size: 0.7rem;
+            line-height: 1.7;
+        }
+        .obs-block--valueadd li::before {
+            content: '+';
+            position: absolute;
+            left: 0; top: -1px;
+            color: var(--shell-yellow);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* Docs requested */
+        .docs-req {
+            max-width: 880px;
+            margin: 2rem auto;
+            padding: 1.5rem 1.75rem;
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            border-radius: 10px;
+        }
+        .docs-req__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .docs-req__label {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+        }
+        .docs-req__title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0.2rem 0 0;
+        }
+        .docs-req__count {
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+        .docs-req ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.45rem 1.5rem;
+        }
+        @media (min-width: 640px) { .docs-req ul { grid-template-columns: 1fr 1fr; } }
+        .docs-req li {
+            color: var(--text-muted);
+            font-size: 0.86rem;
+            padding-left: 1.1rem;
+            position: relative;
+            line-height: 1.5;
+        }
+        .docs-req li::before {
+            content: '›';
+            position: absolute;
+            left: 0;
+            color: var(--shell-red);
+            font-weight: 700;
+        }
+
+        /* Dennis quote */
+        .dennis-note {
+            max-width: 780px;
+            margin: 3rem auto 0;
+            padding: 2rem 2.25rem;
+            border-left: 3px solid var(--shell-yellow);
+            background: linear-gradient(90deg, rgba(251, 206, 7, 0.05) 0%, transparent 100%);
+            border-radius: 0 8px 8px 0;
+        }
+        .dennis-note__label {
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--shell-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            margin-bottom: 0.7rem;
+        }
+        .dennis-note__body {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.98rem;
+            line-height: 1.7;
+            margin: 0 0 0.9rem;
+            font-style: italic;
+        }
+        .dennis-note__attr {
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Gate enforcement -->
+    <script src="../assets/js/gate.js"></script>
+    <script>window.ShellGate && window.ShellGate.enforce();</script>
+
+    <!-- Main header -->
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a href="../index.html" class="site-header__logo" aria-label="Seagull Maritime">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </a>
+            <div class="site-header__prepared-for">
+                <img src="../assets/img/shell-pecten.png" alt="Shell" class="shell-pecten-mini">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sticky sub-nav -->
+    <nav class="sub-nav" aria-label="Audit journey navigation">
+        <div class="sub-nav__inner">
+            <a href="index.html" class="sub-nav__back">Back to Audit</a>
+            <div class="sub-nav__dots">
+                <a href="timeline.html"            class="sub-nav__dot" data-label="01 · Timeline"></a>
+                <a href="original-submission.html" class="sub-nav__dot" data-label="02 · Submission"></a>
+                <a href="on-site.html"             class="sub-nav__dot sub-nav__dot--current" data-label="03 · On-Site"></a>
+                <a href="findings.html"            class="sub-nav__dot" data-label="04 · Findings"></a>
+                <a href="closure.html"             class="sub-nav__dot" data-label="05 · Closure"></a>
+                <a href="cwp.html"                 class="sub-nav__dot" data-label="06 · Programme"></a>
+                <a href="documents.html"           class="sub-nav__dot" data-label="07 · Documents"></a>
+            </div>
+            <a href="findings.html" class="sub-nav__next">Next: Findings →</a>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="../index.html">Portal</a>
+        <span class="breadcrumb__sep">›</span>
+        <a href="index.html">The Shell Audit</a>
+        <span class="breadcrumb__sep">›</span>
+        <span class="breadcrumb__current">03 · On-Site</span>
+    </div>
+
+    <!-- Sub-hero -->
+    <section class="sub-hero">
+        <div class="sub-hero__waves"></div>
+        <div class="container">
+            <div class="sub-hero__inner">
+                <div class="sub-hero__chapter">
+                    <span class="sub-hero__chapter-num">03</span>
+                    <span>Chapter Three</span>
+                </div>
+                <h1 class="sub-hero__title">On-Site.</h1>
+                <p class="sub-hero__tagline">
+                    Two days in Piraeus, 20 – 21 January 2026. The paperwork closed. The conversation
+                    opened. This is where Shell's Maritime Security team walked the system in person
+                    and where the real picture came into focus — for both sides.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lede -->
+    <section class="section" style="padding-top: 1rem;">
+        <div class="container">
+            <div class="onsite-lede">
+                <p>
+                    By the time the audit team arrived in Piraeus, the 205-file DD pack had been on
+                    Shell's servers for nearly two weeks. The paper-based part of the assessment was
+                    essentially complete. What came next was something different — the
+                    <em>in-person audit</em>: the conversation, the walk-through, and the moment the
+                    management system has to live in the room with the people who built it.
+                </p>
+                <p>
+                    Shell brought three. Andy Keane leading as Manager Maritime Security, Dennis Kerlin
+                    covering Strategy &amp; Risk, and Neil Murray as the West Africa Assessor. Two full
+                    days on the ground. Day 1 opened on the integrated management system and Indian
+                    Ocean Region operations. Day 2 pivoted to West Africa, SEV operations and the
+                    SR Platforms / Nigerian Navy relationship.
+                </p>
+                <p>
+                    What follows is a factual record of the two days — who came, what was walked, the
+                    initial observations Shell shared verbally before leaving, and the list of documents
+                    they asked us to provide in the days that followed.
+                </p>
+            </div>
+
+            <!-- Audit team cards -->
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-card__role">Audit Lead</div>
+                    <div class="team-card__name">Andy Keane</div>
+                    <div class="team-card__title">Manager, Maritime Security<br>Shell International T&amp;S</div>
+                    <p class="team-card__bio">
+                        Leads the Shell Maritime Security function within Trading &amp; Supply. Chaired
+                        both days of the audit and signed off the final DD report acceptance on
+                        19 February.
+                    </p>
+                </div>
+                <div class="team-card">
+                    <div class="team-card__role">Strategy &amp; Risk</div>
+                    <div class="team-card__name">Dennis Kerlin</div>
+                    <div class="team-card__title">MS Strategy &amp; Risk Lead<br>Shell International T&amp;S</div>
+                    <p class="team-card__bio">
+                        The day-to-day lead on the Seagull engagement from early December onwards.
+                        Ran the pre-audit scheduling, drove the document requests, and has been the
+                        principal point of contact through close-out.
+                    </p>
+                </div>
+                <div class="team-card">
+                    <div class="team-card__role">WAF Assessor</div>
+                    <div class="team-card__name">Neil Murray</div>
+                    <div class="team-card__title">MS Assessor — West Africa<br>Shell International T&amp;S</div>
+                    <p class="team-card__bio">
+                        Shell's West Africa specialist. Led the Day 2 conversation on SEV operations,
+                        vessel hardening, host nation force engagement and the SR Platforms / Nigerian
+                        Navy arrangements.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Two days -->
+            <div class="days">
+                <div class="day">
+                    <div class="day__num">Day One</div>
+                    <div class="day__date">20 January 2026 · Piraeus</div>
+                    <h2 class="day__title">Management system &amp; Indian Ocean operations</h2>
+                    <p class="day__body">
+                        Opened with introductions, scope confirmation and a walk-through of the Shell
+                        PMSC audit process. From there into the integrated management system as it
+                        stood: ISO certification posture, corporate governance, procedures and
+                        policies, and the IOR operational pack.
+                    </p>
+                    <ul class="day__topics">
+                        <li>Corporate governance, ownership, UBO structure</li>
+                        <li>Management system policies and procedures</li>
+                        <li>ISO 18788 / 28000 / 28007 / 9001 posture</li>
+                        <li>Personnel screening, training &amp; competency</li>
+                        <li>IOR SOPs, embarked teams, RUF</li>
+                        <li>Weapons management, end-user certificates, licensing</li>
+                        <li>Flag state approvals &amp; PCASP authorisations</li>
+                        <li>Vessel Boarding Assessments (example walk-through)</li>
+                    </ul>
+                </div>
+                <div class="day">
+                    <div class="day__num">Day Two</div>
+                    <div class="day__date">21 January 2026 · Piraeus</div>
+                    <h2 class="day__title">West Africa, SEV operations &amp; Mediator II</h2>
+                    <p class="day__body">
+                        Day two pivoted westwards. Neil Murray led the conversation on the WAF picture:
+                        SR Platforms, the Nigerian Navy MOU, Mediator II as the worked vessel example,
+                        and the end-to-end SEV inspection and assurance process. The day closed with
+                        initial verbal observations and the document request list.
+                    </p>
+                    <ul class="day__topics">
+                        <li>Host Nation Force MOU — Nigerian Navy</li>
+                        <li>SR Platforms relationship &amp; operating permits</li>
+                        <li>MV Mediator II — specs, surveys, condition</li>
+                        <li>Vessel hardening &amp; ballistics certification</li>
+                        <li>SEV inspection checklists &amp; action items</li>
+                        <li>Crewing, training matrices, HSE KPIs</li>
+                        <li>Contractor management system</li>
+                        <li>Close-out conversation &amp; initial observations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Positive observations -->
+            <div class="obs-block obs-block--positive">
+                <div class="obs-block__label">Initial feedback · verbal close-out</div>
+                <h2 class="obs-block__title">What Shell saw as strengths</h2>
+                <p class="obs-block__intro">
+                    Six positive observations delivered verbally on Day 2 and captured in the formal
+                    audit comments. Recorded here exactly as worded by the audit team.
+                </p>
+                <ul>
+                    <li>Good clear boundaries between Commercial and Operational roles</li>
+                    <li>Ongoing focus on improving Management Systems and SOPs</li>
+                    <li>Clear, concise SOPs</li>
+                    <li>Experienced shore-based personnel driving company improvements — open and transparent</li>
+                    <li>Availability of digital and intelligence support from Vanguard</li>
+                    <li>Critical spares requirements and checks for SEVs</li>
+                </ul>
+            </div>
+
+            <!-- Areas to improve -->
+            <div class="obs-block obs-block--improve">
+                <div class="obs-block__label">Initial feedback · to confirm prior to Stage 1 DD</div>
+                <h2 class="obs-block__title">Areas flagged for improvement</h2>
+                <p class="obs-block__intro">
+                    Seven items raised as things to confirm or develop before Shell could sign off
+                    Stage 1 due diligence. These became the backbone of the Change Management Plan
+                    submitted on 6 February.
+                </p>
+                <ul>
+                    <li>Provide clarity around the exemption from Maltese PMSC law with a document from the Malta government</li>
+                    <li>Develop the risk management process — from Risk Identification through Risk Control and Mitigations — for all Seagull operations (WAF / IOR)</li>
+                    <li>Provide a Media Policy (including Social Media) for Seagull employees — office and operational</li>
+                    <li>Personal insurance — company on policy referenced Seagull UK rather than Malta</li>
+                    <li>Nigerian Navy MOU — clarity on arrangements and scope</li>
+                    <li>Reference VPSHR and adopt its recommendations into procedures and practices</li>
+                    <li>Complete and document an IRT exercise</li>
+                </ul>
+            </div>
+
+            <!-- Value-add observations -->
+            <div class="obs-block obs-block--valueadd">
+                <div class="obs-block__label">Additional value-add observations</div>
+                <h2 class="obs-block__title">Further recommendations from the audit team</h2>
+                <p class="obs-block__intro">
+                    Nine further observations offered as improvements that would add value to the
+                    system — not blockers, but the kind of feedback that only comes from auditors
+                    who have already decided the relationship is worth investing in.
+                </p>
+                <ul>
+                    <li>Document and implement a management of change process so that procedure updates are reviewed and rolled out with accountability</li>
+                    <li>Annual Management Review — ensure clear accountability for actions and regular follow-up</li>
+                    <li>Check sanctions listings for compliance</li>
+                    <li>Review wording about delaying vessels to ensure it's clear a client vessel can be delayed for safety reasons (e.g. bad weather for transfer)</li>
+                    <li>Vessel defence section — ensure primary response to incident is UKMTO</li>
+                    <li>Seagull minimum standards for SEVs</li>
+                    <li>Clarify Drugs &amp; Alcohol policy applicability</li>
+                    <li>Implement PCASP security briefing to Master</li>
+                    <li>Signalled possible return in one year for a surveillance visit as documentation and changes continue</li>
+                </ul>
+            </div>
+
+            <!-- Documents requested -->
+            <div class="docs-req">
+                <div class="docs-req__header">
+                    <div>
+                        <div class="docs-req__label">Post-audit document request</div>
+                        <h2 class="docs-req__title">Ten items on the list</h2>
+                    </div>
+                    <div class="docs-req__count">Requested 21 Jan · delivered 5 Feb</div>
+                </div>
+                <ul>
+                    <li>Details of legal arrangements between Seagull Malta and Seagull Nigeria</li>
+                    <li>SEV incident reports / investigations</li>
+                    <li>SEV inspection records (including surprise inspections)</li>
+                    <li>SEV provider supplier audit</li>
+                    <li>VRA for 2 × IOR transits and 2 × SEV</li>
+                    <li>D&amp;A test records for PCASP</li>
+                    <li>D&amp;A testing of SEV crew verification</li>
+                    <li>Record of lost weapons</li>
+                    <li>2 × post-transit reports (PCASP)</li>
+                    <li>Admin procedure for PCASP (use of online tool)</li>
+                </ul>
+            </div>
+
+            <!-- Dennis thank-you note -->
+            <div class="dennis-note">
+                <div class="dennis-note__label">26 January 2026 · Five days later</div>
+                <p class="dennis-note__body">
+                    A short note from Dennis, thanking the team for their hospitality and openness
+                    during the two days. No fanfare, no corporate script — just the signal that the
+                    audit had been a genuine working conversation and that the relationship was
+                    going to run on that basis from here on in.
+                </p>
+                <div class="dennis-note__attr">— Dennis Kerlin, MS Strategy &amp; Risk Lead, Shell</div>
+            </div>
+
+            <!-- Chapter nav footer -->
+            <nav class="chapter-nav" aria-label="Chapter navigation">
+                <a href="original-submission.html" class="chapter-nav__link chapter-nav__link--prev">
+                    <div style="font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">← Chapter 02</div>
+                    <div style="font-family: var(--font-display); font-weight: 700; color: #fff;">Original Submission</div>
+                </a>
+                <a href="findings.html" class="chapter-nav__link chapter-nav__link--next">
+                    <div style="font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Chapter 04 →</div>
+                    <div style="font-family: var(--font-display); font-weight: 700; color: #fff;">Findings</div>
+                </a>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="site-footer__inner">
+            <div class="site-footer__mark">
+                <img src="../assets/img/seagull-white.svg" alt="Seagull Maritime">
+            </div>
+            <div class="site-footer__tag">
+                Your Watch.
+                <strong>Our Standard.</strong>
+            </div>
+            <div class="site-footer__meta">
+                Confidential · Prepared for Shell Maritime Security Team · 2026
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
